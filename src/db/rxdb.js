@@ -5,6 +5,6 @@ export async function createDatabase() {
   return await createRxDatabase({
     name: 'khatabookdb',
     storage: getRxStorageDexie(),
-    ignoreDuplicate: true,
+    // ignoreDuplicate: true,
   });
 }

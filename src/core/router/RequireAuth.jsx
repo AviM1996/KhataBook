@@ -1,17 +1,20 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
-export default function    RequireAuth({ children }) {
-  const token = localStorage.getItem('ACCESS_TOKEN');
+export default function RequireAuth({ children }) {
+  const { user,role, loading } = useAuth();
   const location = useLocation();
 
-  if (!token) {
-    return (
-      <Navigate
-        to="/login"
-        replace
-        state={{ from: location }}
-      />
-    );
+  // ⏳ Firebase auth state now loading
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // 🔒 Not logged in
+ if (!user) return <Navigate to="/login" />;
+
+  if (role !== "admin" && role !== "subadmin") {
+    return <div> Access Denied</div>;
   }
 
   return children;

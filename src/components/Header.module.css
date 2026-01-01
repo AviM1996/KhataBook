@@ -1,0 +1,170 @@
+/* ================= HEADER ================= */
+.appHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  width: 100%;
+  height: 64px;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+
+  padding: 0 20px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(14, 22, 42, 0.85),
+    rgba(11, 18, 34, 0.85)
+  );
+
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+}
+
+/* ================= LEFT ================= */
+.headerLeft {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon {
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.bar {
+  position: absolute;
+  width: 6px;
+  border-radius: 4px;
+}
+
+.dark {
+  height: 34px;
+  background: #020617;
+  left: 6px;
+  top: 3px;
+}
+
+.green {
+  height: 24px;
+  background: #8bc34a;
+  left: 18px;
+  top: 10px;
+}
+
+.check {
+  position: absolute;
+  width: 14px;
+  height: 8px;
+  border-left: 3px solid #020617;
+  border-bottom: 3px solid #020617;
+  transform: rotate(-45deg);
+  right: 3px;
+  bottom: 6px;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: #e8ede3;
+}
+
+.brand span {
+  color: #8bc34a;
+}
+
+.tagline {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* ================= CENTER ================= */
+.headerCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  animation: fadeSlide 0.25s ease;
+}
+
+.activeIndicator {
+  width: 26px;
+  height: 3px;
+  margin-top: 6px;
+  border-radius: 2px;
+  background: #22c55e;
+}
+
+/* ================= RIGHT ================= */
+.headerRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.logoutBtn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+
+  color: #ef4444; /* red icon */
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.logoutBtn:hover {
+  color: #f87171;
+  transform: scale(1.1);
+}
+
+.logoutBtn:active {
+  transform: scale(0.95);
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 0.9rem;
+  }
+
+  .activeIndicator {
+    width: 20px;
+  }
+
+  .tagline {
+    display: none;
+  }
+}

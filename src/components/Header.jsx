@@ -1,23 +1,10 @@
 import { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Box,
-  IconButton,
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemButton,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import styles from "./Header.module.css";
 
 export default function Header() {
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false); // future use
 
   const handleLogout = () => {
     localStorage.removeItem("ACCESS_TOKEN");
@@ -25,114 +12,51 @@ export default function Header() {
   };
 
   return (
-    <>
-      <AppBar position="static" color="primary">
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          {/* Left: Hamburger + Logo */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={() => setOpen(true)}
-            >
-              <MenuIcon />
-            </IconButton>
+    <header className={styles.appHeader}>
+      {/* LEFT */}
+      <div className={styles.headerLeft}>
+        <div className={styles.logo}>
+          <div className={styles.icon}>
+            <span className={`${styles.bar} ${styles.dark}`} />
+            <span className={`${styles.bar} ${styles.green}`} />
+            <span className={styles.check} />
+          </div>
+          <div>
+            <div className={styles.brand}>
+              Ledger<span>Flow</span>
+            </div>
+            <div className={styles.tagline}>Smart Accounting</div>
+          </div>
+        </div>
+      </div>
 
-            <Typography variant="h6">📒 Khatabook</Typography>
-          </Box>
+      {/* CENTER */}
+      <div className={styles.headerCenter}>
+        <h2 className={styles.pageTitle}>Dashboard</h2>
+        <span className={styles.activeIndicator}></span>
+      </div>
 
-          {/* Right: Logout */}
-          <Button color="inherit" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer anchor="left" open={open} onClose={() => setOpen(false)}>
-        <Box
-          sx={{
-            width: 260,
-            height: "100%",
-            background: "rgba(255, 255, 255, 0.15)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-          }}
+      {/* RIGHT */}
+      <div className={styles.headerRight}>
+        <button
+          type="button"
+          className={styles.logoutBtn}
+          title="Logout"
+          onClick={handleLogout}
         >
-          {/* Glass Header */}
-          <Box
-            sx={{
-              p: 2,
-              borderBottom: "1px solid rgba(255,255,255,0.3)",
-              background: "rgba(8, 94, 180, 0.35)",
-            }}
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
           >
-            <Typography
-              variant="h6"
-              sx={{
-                color: "#1e1d1dff",
-                fontWeight: 600,
-                letterSpacing: "0.5px",
-              }}
-            >
-              📒 Khatabook
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{ color: "rgba(84, 77, 77, 0.8)" }}
-            >
-              Manage your business
-            </Typography>
-          </Box>
-
-          {/* Menu */}
-          <List>
-            {[
-              { label: "Dashboard", path: "/dashboard" },
-              { label: "Customers", path: "/customers" },
-            ].map((item) => (
-              <ListItem key={item.label} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  onClick={() => setOpen(false)}
-                  sx={{
-                    mx: 1,
-                    my: 0.75,
-                    borderRadius: "14px",
-                    color: "#1a237e",
-                    transition: "all 0.25s ease",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
-
-                    "&:hover": {
-                      background: "rgba(255, 255, 255, 0.35)",
-                      boxShadow: `
-              inset 0 0 0 1px rgba(255,255,255,0.45),
-              0 8px 20px rgba(25,118,210,0.25)
-            `,
-                      transform: "translateY(-1px) scale(1.01)",
-                    },
-
-                    "&:active": {
-                      transform: "scale(0.98)",
-                      background: "rgba(255,255,255,0.45)",
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={item.label}
-                    primaryTypographyProps={{
-                      fontSize: "1rem",
-                      fontWeight: 500,
-                      letterSpacing: "0.2px",
-                    }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-      </Drawer>
-    </>
+            <path d="M16 17l5-5-5-5M21 12H9" />
+            <path d="M13 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8" />
+          </svg>
+        </button>
+      </div>
+    </header>
   );
 }

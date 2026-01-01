@@ -1,5 +1,6 @@
 import Customers from "./CustomersPage";
 import AddCustomer from "./AddCustomerPage";
+import EditCustomer from "./editCustomerPage";
 
 export const customersRoutes = [
   {
@@ -12,6 +13,13 @@ export const customersRoutes = [
   {
     path: "/customers/add",
     element: <AddCustomer />,
+    meta: {
+      guard: "auth",
+    },
+  },
+  {
+    path: "/customers/edit/:id",
+    element: <EditCustomer />,
     meta: {
       guard: "auth",
     },

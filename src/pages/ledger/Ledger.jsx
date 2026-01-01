@@ -15,6 +15,15 @@ import {
 
 export default function Ledger({ customer, entries, onTransaction }) {
   const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
+
+  if (!customer) {
+    return (
+      <Container sx={{ mt: 3 }}>
+        <Typography color="text.secondary">Loading...</Typography>
+      </Container>
+    );
+  }
 
   function handleClick(type) {
     const value = Number(amount);
@@ -22,11 +31,13 @@ export default function Ledger({ customer, entries, onTransaction }) {
       alert("Please enter valid amount");
       return;
     }
-    onTransaction(type, value);
+
+    onTransaction(type, value, note);
     setAmount("");
+    setNote("");
   }
 
-  // 🔢 Summary calculation
+  /* ===== SUMMARY ===== */
   const summary = useMemo(() => {
     let credit = 0;
     let debit = 0;
@@ -47,43 +58,14 @@ export default function Ledger({ customer, entries, onTransaction }) {
     <Container maxWidth="sm" sx={{ mt: 2, mb: 10 }}>
       {/* CUSTOMER + SUMMARY */}
       <Paper sx={{ p: 2, mb: 2 }}>
-        {/* NAME + ADDRESS */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: 1,
-          }}
-        >
-          <Typography variant="h6" fontWeight={600}>
-            {customer.name}
-          </Typography>
-
-          {customer.address && (
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                maxWidth: "55%",
-              }}
-            >
-              📍 {customer.address}
-            </Typography>
-          )}
-        </Box>
-
-        {/* PHONE */}
-        <Typography color="text.secondary" sx={{ mt: 0.5 }}>
-          📞 {customer.phone}
+        <Typography variant="h6" fontWeight={600}>
+          {customer.name}
         </Typography>
+
+        <Typography color="text.secondary">📞 {customer.phone}</Typography>
 
         <Divider sx={{ my: 1 }} />
 
-        {/* SUMMARY */}
         <Stack direction="row" justifyContent="space-between">
           <Box>
             <Typography variant="caption">Credit</Typography>
@@ -107,7 +89,7 @@ export default function Ledger({ customer, entries, onTransaction }) {
         </Stack>
       </Paper>
 
-      {/* TRANSACTIONS (SCROLLABLE) */}
+      {/* TRANSACTIONS */}
       <Paper sx={{ maxHeight: "55vh", overflowY: "auto" }}>
         <List>
           {entries.length === 0 && (
@@ -117,12 +99,35 @@ export default function Ledger({ customer, entries, onTransaction }) {
           )}
 
           {entries.map((e, i) => (
-            <div key={e.id}>
+            <Box key={e.id}>
               <ListItem>
                 <ListItemText
                   primary={e.type}
-                  secondary={new Date(e.date).toDateString()}
+                  secondary={
+                    <Box component="span">
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        color="text.secondary"
+                        display="block"
+                      >
+                        {e.createdAt?.toDate().toDateString()}
+                      </Typography>
+
+                      {e.note && (
+                        <Typography
+                          component="span"
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                        >
+                          📝 {e.note}
+                        </Typography>
+                      )}
+                    </Box>
+                  }
                 />
+
                 <Typography
                   fontWeight={600}
                   color={e.type === "CREDIT" ? "green" : "red"}
@@ -130,8 +135,9 @@ export default function Ledger({ customer, entries, onTransaction }) {
                   {e.type === "CREDIT" ? "+" : "-"}₹{e.amount}
                 </Typography>
               </ListItem>
+
               {i < entries.length - 1 && <Divider />}
-            </div>
+            </Box>
           ))}
         </List>
       </Paper>
@@ -151,9 +157,18 @@ export default function Ledger({ customer, entries, onTransaction }) {
           <TextField
             label="Amount"
             type="number"
+            inputProps={{ min: 1 }}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             fullWidth
+          />
+
+          <TextField
+            label="Note (optional)"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            fullWidth
+            sx={{ mt: 1 }}
           />
 
           <Stack direction="row" spacing={2} mt={2}>

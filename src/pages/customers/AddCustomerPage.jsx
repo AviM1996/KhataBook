@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Container,
@@ -6,19 +6,21 @@ import {
   Paper,
   TextField,
   Button,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { addCustomer } from '../../db/customer.service';
-import { v4 as uuid } from 'uuid';
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { addCustomer } from "../../firebase/customer.service";
 
 export default function AddCustomer() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: '',
-    address: '',
-    phone: '',
+    name: "",
+    address: "",
+    phone: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setForm({
@@ -29,17 +31,31 @@ export default function AddCustomer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    // 🔹 RxDB save
-    await addCustomer({
-      id: uuid(),
-      name: form.name,
-      address: form.address,
-      phone: form.phone,
-    });
+    if (!form.name || !form.phone) {
+      setError("Name and phone are required");
+      return;
+    }
 
-    // 🔹 back to list
-    navigate('/customers');
+    try {
+      setLoading(true);
+
+      // 🔥 Firestore add (NO uuid)
+      await addCustomer({
+        name: form.name,
+        address: form.address,
+        phone: form.phone,
+      });
+
+      // ✅ back to list
+      navigate("/customers");
+    } catch (err) {
+      console.error("ADD CUSTOMER ERROR 👉", err);
+      setError("Failed to add customer");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -79,23 +95,34 @@ export default function AddCustomer() {
             margin="normal"
           />
 
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
+
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
+              display: "flex",
+              justifyContent: "flex-end",
               gap: 1,
               mt: 3,
             }}
           >
             <Button
               variant="outlined"
-              onClick={() => navigate('/customers')}
+              onClick={() => navigate("/customers")}
+              disabled={loading}
             >
               Cancel
             </Button>
 
-            <Button variant="contained" type="submit">
-              Save Customer
+            <Button
+              variant="contained"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Customer"}
             </Button>
           </Box>
         </Box>

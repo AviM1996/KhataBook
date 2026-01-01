@@ -1,62 +1,48 @@
-import * as React from 'react';
-import {
-  Container,
-  Typography,
-  Paper,
-  Button,
-  Box
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./Home.module.css";
 
 export default function Home() {
   const navigate = useNavigate();
 
+  const handleContinue = () => {
+    navigate("/login");
+  };
+
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        mt: { xs: 4, sm: 6 },
-        px: { xs: 2, sm: 0 }
-      }}
-    >
-      <Paper
-        sx={{
-          p: { xs: 3, sm: 4 },
-          textAlign: 'center'
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: { xs: '1.6rem', sm: '2rem' },
-            fontWeight: 600,
-            mb: 1
-          }}
-        >
-          📒 Khatabook
-        </Typography>
+    <div className={styles.page}>
+      <div className={styles.card}>
+        <div className={styles.logo}>
+          <div className={styles.icon}>
+            <span className={styles.bar + " " + styles.dark}></span>
+            <span className={styles.bar + " " + styles.green}></span>
+            <span className={styles.check}></span>
+          </div>
+          <div className={styles.branding}>
+            <div className={styles.brand}>
+              Ledger<span>Flow</span>
+            </div>
+            <div className={styles.tagline}>Smart Accounting</div>
+          </div>
+        </div>
 
-        <Typography
-          sx={{
-            fontSize: { xs: '0.9rem', sm: '1rem' },
-            color: 'text.secondary',
-            mb: 3
-          }}
-        >
-          Simple digital ledger to manage your customers and payments.
-        </Typography>
+        <h2>Welcome to LedgerFlow</h2>
+        <p className={styles.sub}>
+          Secure, simple and intelligent accounting for your business
+        </p>
 
-        {/* 🔐 Login Button */}
-        <Box>
-          <Button
-            variant="contained"
-            size="large"
-            fullWidth
-            onClick={() => navigate('/login')}
+        <div className={styles.actions}>
+          <button
+            className={styles.primaryBtn}
+            onClick={handleContinue}
+            type="button"
           >
-            Sign In
-          </Button>
-        </Box>
-      </Paper>
-    </Container>
+            Sign in with password
+          </button>
+        </div>
+
+        <footer>© 2026 LedgerFlow</footer>
+      </div>
+    </div>
   );
 }

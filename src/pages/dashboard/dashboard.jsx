@@ -1,197 +1,85 @@
-import React, { useEffect, useState, useMemo } from "react";
-import {
-  Box,
-  Container,
-  Grid,
-  Paper,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  Select,
-  MenuItem,
-  Chip,
-} from "@mui/material";
-
-import { getAllCustomers } from "../../db/customer.service";
-import {
-  getAllTransactions,
-  getRecentTransactions,
-} from "../../db/transaction.service";
+import React, { useMemo, useState } from "react";
+import styles from "./dashboard.module.css";
 
 export default function Dashboard() {
-  const [customers, setCustomers] = useState([]);
-  const [transactions, setTransactions] = useState([]);
-  const [recent, setRecent] = useState([]);
   const [month, setMonth] = useState("ALL");
 
-  /* ================= LOAD DATA ================= */
-
-  useEffect(() => {
-    async function load() {
-      const c = await getAllCustomers();
-      const t = await getAllTransactions();
-      const r = await getRecentTransactions(5);
-
-      setCustomers(c);
-      setTransactions(t);
-      setRecent(r);
-    }
-
-    load();
-  }, []);
-
-  /* ================= CUSTOMER MAP (ID → NAME) ================= */
-
-  const customerMap = useMemo(() => {
-    const map = {};
-    customers.forEach((c) => {
-      map[c.id] = c.name;
-    });
-    return map;
-  }, [customers]);
-
-  /* ================= DASHBOARD STATS ================= */
-
-  const stats = useMemo(() => {
-    let credit = 0;
-    let debit = 0;
-    let todayCredit = 0;
-    let todayDebit = 0;
-
-    const today = new Date().toDateString();
-
-    transactions.forEach((t) => {
-      const d = new Date(t.date).toDateString();
-
-      if (t.type === "CREDIT") {
-        credit += t.amount;
-        if (d === today) todayCredit += t.amount;
-      } else {
-        debit += t.amount;
-        if (d === today) todayDebit += t.amount;
-      }
-    });
-
-    return {
-      totalCustomers: customers.length,
-      totalCredit: credit,
-      totalDebit: debit,
-      todayCredit,
-      todayDebit,
-      balance: credit - debit,
-    };
-  }, [customers, transactions]);
-
-  /* ================= CARD CONFIG ================= */
-
-  const cards = [
-    { label: "Total Customers", value: stats.totalCustomers },
-    { label: "Total Credit", value: `₹ ${stats.totalCredit}`, color: "green" },
-    { label: "Total Debit", value: `₹ ${stats.totalDebit}`, color: "red" },
-    {
-      label: "Per-day Credit",
-      value: `₹ ${stats.todayCredit}`,
-      color: "green",
-    },
-    {
-      label: "Per-day Debit",
-      value: `₹ ${stats.todayDebit}`,
-      color: "red",
-    },
-    {
-      label: "Net Balance",
-      value: `₹ ${stats.balance}`,
-      highlight: true,
-    },
-  ];
-
-  /* ================= UI ================= */
-
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      {/* HEADER */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h5" fontWeight={600}>
-          Dashboard
-        </Typography>
+    <div>
+      {/* ===== STATS ===== */}
+      <div className={styles.statsScroll}>
+        <div className={styles.stats}>
+          <StatCard label="Total Customers" value="128" color={styles.green} />
+          <StatCard label="Today Sales" value="₹12,450" color={styles.green} />
+          <StatCard label="Today Credit" value="₹4,200" color={styles.green} />
+          <StatCard label="Total Credit" value="₹78,900" color={styles.green} />
+          <StatCard label="Total Debit" value="₹52,300" color={styles.red} />
+          <StatCard
+            label="Outstanding Balance"
+            value="₹26,600"
+            color={styles.blue}
+          />
+          <StatCard
+            label="Stock Value"
+            value="₹1,32,500"
+            color={styles.yellow}
+          />
+        </div>
+      </div>
 
-        <Select
-          size="small"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-        >
-          <MenuItem value="ALL">All Time</MenuItem>
-        </Select>
-      </Box>
+      {/* ===== WEEKLY CHART ===== */}
+      <div className={styles.box}>
+        <h4 className={styles.chartTitle}>Weekly Product Sales</h4>
 
-      {/* STAT CARDS */}
-      <Grid container spacing={2}>
-        {cards.map((c, i) => (
-          <Grid item xs={12} sm={6} md={4} key={i}>
-            <Paper
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                background: c.highlight
-                  ? "linear-gradient(135deg, #1976d2, #42a5f5)"
-                  : "#fff",
-                color: c.highlight ? "#fff" : "#000",
-                boxShadow: "0 6px 15px rgba(0,0,0,0.08)",
-              }}
-            >
-              <Typography fontSize={13}>{c.label}</Typography>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{ color: c.color }}
-              >
-                {c.value}
-              </Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
+        <div className={styles.weeklyChart}>
+          {/* Y AXIS */}
+          <div className={styles.yAxis}>
+            {["₹10k", "₹8k", "₹6k", "₹4k", "₹2k", "₹0"].map((v) => (
+              <span key={v}>{v}</span>
+            ))}
+          </div>
 
-      {/* RECENT ACTIVITY */}
-      <Paper sx={{ mt: 4 }}>
-        <Box
-          sx={{
-            p: 2,
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <Typography variant="h6">Recent Transactions</Typography>
-          <Chip size="small" label={`Showing ${recent.length}`} />
-        </Box>
+          {/* GRID + BARS */}
+          <div className={styles.chartWrapper}>
+            {/* GRID LINES */}
+            <div className={styles.grid}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <span key={i} />
+              ))}
+            </div>
 
-        <Divider />
+            {/* BARS */}
+            <div className={styles.chartArea}>
+              {[
+                ["Mon", 40],
+                ["Tue", 55],
+                ["Wed", 48],
+                ["Thu", 70],
+                ["Fri", 65],
+                ["Sat", 85],
+                ["Sun", 60],
+              ].map(([day, height]) => (
+                <div key={day} className={styles.barCol}>
+                  <div
+                    className={styles.bar}
+                    style={{ height: `${height}%` }}
+                  />
+                  <small>{day}</small>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-        <List>
-          {recent.map((e, index) => (
-            <React.Fragment key={e.id}>
-              <ListItem>
-                <ListItemText
-                  primary={customerMap[e.customerId] || "Unknown Customer"}
-                  secondary={`${e.type} • ${new Date(
-                    e.date
-                  ).toDateString()}`}
-                />
-                <Typography
-                  fontWeight={700}
-                  color={e.type === "CREDIT" ? "green" : "red"}
-                >
-                  {e.type === "CREDIT" ? "+" : "-"}₹{e.amount}
-                </Typography>
-              </ListItem>
-
-              {index < recent.length - 1 && <Divider />}
-            </React.Fragment>
-          ))}
-        </List>
-      </Paper>
-    </Container>
+function StatCard({ label, value, color }) {
+  return (
+    <div className={styles.card}>
+      <p>{label}</p>
+      <h3 className={color}>{value}</h3>
+    </div>
   );
 }

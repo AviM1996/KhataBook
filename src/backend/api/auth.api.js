@@ -16,14 +16,17 @@ export async function login(email, password) {
 
   await setPersistence(auth, browserLocalPersistence);
 
-  const result = await signInWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
+  const result = await signInWithEmailAndPassword(auth, email, password);
 
-  return result.user;
+  const user = result.user;
+  const token = await user.getIdToken();
+  console.log(user,token);
+
+  return { user, token }
 }
+
+
+
 
 export async function logout() {
   await signOut(auth);
@@ -35,11 +38,7 @@ export async function register({ email, password, role = "user" }) {
     throw new Error("EMAIL_PASSWORD_REQUIRED");
   }
 
-  const result = await createUserWithEmailAndPassword(
-    auth,
-    email,
-    password
-  );
+  const result = await createUserWithEmailAndPassword(auth, email, password);
 
   await setDoc(doc(db, "users", result.user.uid), {
     email,

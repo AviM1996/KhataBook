@@ -8,6 +8,7 @@ export const customersRoutes = [
     element: <Customers />,
     meta: {
       guard: "auth",
+      public: true,
     },
   },
   {

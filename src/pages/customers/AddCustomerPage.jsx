@@ -1,14 +1,8 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  TextField,
-  Button,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { addCustomer } from "../../firebase/customer.service";
+import { BufferIconInline } from "../../components/BufferIcon";
+import styles from "./AddCustomerPage.module.css";
 
 export default function AddCustomer() {
   const navigate = useNavigate();
@@ -17,15 +11,20 @@ export default function AddCustomer() {
     name: "",
     address: "",
     phone: "",
+    openingBalance: "",
+    balanceDirection: "Receivable",
+    reminderDate: "",
+    notes: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -41,11 +40,13 @@ export default function AddCustomer() {
     try {
       setLoading(true);
 
-      // 🔥 Firestore add (NO uuid)
+      // 🔥 Firestore add (save all fields)
       await addCustomer({
         name: form.name,
         address: form.address,
         phone: form.phone,
+        reminderDate: form.reminderDate || null,
+        notes: form.notes || "",
       });
 
       // ✅ back to list
@@ -59,74 +60,155 @@ export default function AddCustomer() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" fontWeight={600} mb={2}>
-        Add Customer
-      </Typography>
+    <div className={styles.page}>
+      {/* HEADER */}
+      <header className={styles.formHeader}>
+        <h2>Add Customer</h2>
+        <p>Create a new customer profile</p>
+      </header>
 
-      <Paper sx={{ p: 3 }}>
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            label="Customer Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
+      {/* FORM */}
+      <form className={styles.card} onSubmit={handleSubmit}>
+        {/* BASIC INFO */}
+        <div className={styles.section}>
+          <h4>Basic Information</h4>
 
-          <TextField
-            label="Customer Address"
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
+          <label className={styles.label}>
+            Customer Name *
+            <input
+              type="text"
+              name="name"
+              placeholder="e.g. Ravi Store"
+              value={form.name}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </label>
 
-          <TextField
-            label="Phone Number"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
+          <label className={styles.label}>
+            Phone Number *
+            <input
+              type="tel"
+              name="phone"
+              placeholder="10 digit mobile number"
+              value={form.phone}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </label>
 
-          {error && (
-            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-              {error}
-            </Typography>
-          )}
+          <label className={styles.label}>
+            Address
+            <textarea
+              name="address"
+              placeholder="Street, area, city (optional)"
+              value={form.address}
+              onChange={handleChange}
+              className={styles.textarea}
+            />
+          </label>
+        </div>
 
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "flex-end",
-              gap: 1,
-              mt: 3,
-            }}
+        {/* FINANCIAL INFO */}
+        <div className={styles.section}>
+          <h4>Financial Details</h4>
+
+          <label className={styles.label}>
+            Opening Balance
+            <input
+              type="number"
+              name="openingBalance"
+              placeholder="0"
+              value={form.openingBalance}
+              onChange={handleChange}
+              className={styles.input}
+            />
+          </label>
+
+          <div className={styles.toggle}>
+            <span>Balance Direction</span>
+            <div className={styles.options}>
+              <label className={`${styles.opt} ${styles.green}`}>
+                <input
+                  type="radio"
+                  name="balanceDirection"
+                  value="Receivable"
+                  checked={form.balanceDirection === "Receivable"}
+                  onChange={handleChange}
+                />
+                <span>Receivable</span>
+              </label>
+              <label className={`${styles.opt} ${styles.red}`}>
+                <input
+                  type="radio"
+                  name="balanceDirection"
+                  value="Payable"
+                  checked={form.balanceDirection === "Payable"}
+                  onChange={handleChange}
+                />
+                <span>Payable</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* EXTRA */}
+        <div className={styles.section}>
+          <h4>Additional Info</h4>
+
+          <label className={styles.label}>
+            Reminder Date
+            <input
+              type="date"
+              name="reminderDate"
+              value={form.reminderDate}
+              onChange={handleChange}
+              className={styles.input}
+            />
+          </label>
+
+          <label className={styles.label}>
+            Notes
+            <textarea
+              name="notes"
+              placeholder="Internal notes (optional)"
+              value={form.notes}
+              onChange={handleChange}
+              className={styles.textarea}
+            />
+          </label>
+        </div>
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        {/* ACTIONS */}
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.ghost}`}
+            onClick={() => navigate("/customers")}
+            disabled={loading}
           >
-            <Button
-              variant="outlined"
-              onClick={() => navigate("/customers")}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              variant="contained"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Customer"}
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-    </Container>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={`${styles.btn} ${styles.primary}`}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <BufferIconInline size="small" color="white" />
+                Saving...
+              </>
+            ) : (
+              "Save Customer"
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

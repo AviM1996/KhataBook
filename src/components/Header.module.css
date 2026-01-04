@@ -13,19 +13,40 @@
 
   padding: 0 20px;
 
-  background: linear-gradient(
-    180deg,
-    rgba(14, 22, 42, 0.85),
-    rgba(11, 18, 34, 0.85)
-  );
-
-  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 4px 16px var(--shadow);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* ================= LEFT ================= */
 .headerLeft {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.menuBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.menuBtn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+.menuBtn:active {
+  transform: scale(0.95);
 }
 
 .logo {
@@ -74,16 +95,18 @@
 .brand {
   font-size: 20px;
   font-weight: 700;
-  color: #e8ede3;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .brand span {
-  color: #8bc34a;
+  color: var(--accent-green);
 }
 
 .tagline {
   font-size: 11px;
-  color: #9ca3af;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* ================= CENTER ================= */
@@ -99,8 +122,9 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
-  color: #e5e7eb;
+  color: var(--text-primary);
   animation: fadeSlide 0.25s ease;
+  transition: color 0.3s ease;
 }
 
 .activeIndicator {
@@ -108,7 +132,8 @@
   height: 3px;
   margin-top: 6px;
   border-radius: 2px;
-  background: #22c55e;
+  background: var(--accent-green);
+  transition: background 0.3s ease;
 }
 
 /* ================= RIGHT ================= */
@@ -116,20 +141,41 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
+}
+
+.themeToggle {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.themeToggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.themeToggle:active {
+  transform: scale(0.95);
 }
 
 .logoutBtn {
   background: transparent;
   border: none;
   padding: 6px;
-
-  color: #ef4444; /* red icon */
+  color: #ef4444;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: color 0.2s ease, transform 0.15s ease;
 }
 

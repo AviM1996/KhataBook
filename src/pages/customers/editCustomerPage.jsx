@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  TextField,
-  Button,
-} from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCustomers } from "../../hooks/useCustomers";
+import BufferIcon from "../../components/BufferIcon";
+import { BufferIconInline } from "../../components/BufferIcon";
+import styles from "./editCustomerPage.module.css";
 
 export default function EditCustomer() {
   const { id } = useParams();
@@ -17,6 +12,7 @@ export default function EditCustomer() {
   const {
     getCustomerById,
     updateCustomer,
+    deleteCustomer,
     loading,
   } = useCustomers();
 
@@ -24,7 +20,14 @@ export default function EditCustomer() {
     name: "",
     address: "",
     phone: "",
+    currentBalance: "",
+    balanceDirection: "Receivable",
+    reminderDate: "",
+    notes: "",
   });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   // 🔹 wait until customers loaded
   useEffect(() => {
@@ -41,80 +44,218 @@ export default function EditCustomer() {
       name: customer.name || "",
       address: customer.address || "",
       phone: customer.phone || "",
+      currentBalance: customer.currentBalance || "",
+      balanceDirection: customer.balanceDirection || "Receivable",
+      reminderDate: customer.reminderDate || "",
+      notes: customer.notes || "",
     });
   }, [id, loading, getCustomerById, navigate]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSubmitting(true);
 
-    await updateCustomer(id, form);
-    navigate("/customers");
+    try {
+      // Update all fields
+      await updateCustomer(id, {
+        name: form.name,
+        address: form.address,
+        phone: form.phone,
+        reminderDate: form.reminderDate || null,
+        notes: form.notes || "",
+      });
+      navigate("/customers");
+    } catch (err) {
+      console.error("UPDATE CUSTOMER ERROR 👉", err);
+      setError("Failed to update customer");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Delete ${form.name}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      await deleteCustomer(id);
+      navigate("/customers");
+    } catch (err) {
+      console.error("DELETE CUSTOMER ERROR 👉", err);
+      setError("Failed to delete customer");
+    }
   };
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4 }}>
-        <Typography>Loading customer...</Typography>
-      </Container>
+      <div className={styles.page}>
+        <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+          <BufferIcon size="medium" color="green" text="Loading customer..." />
+        </div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" fontWeight={600} mb={2}>
-        Edit Customer
-      </Typography>
+    <div className={styles.page}>
+      {/* HEADER */}
+      <header className={`${styles.formHeader} ${styles.warn}`}>
+        <h2>Edit Customer</h2>
+        <p>Update customer details</p>
+      </header>
 
-      <Paper sx={{ p: 3 }}>
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            label="Customer Name"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
+      {/* FORM */}
+      <form className={styles.card} onSubmit={handleSubmit}>
+        {/* BASIC INFO */}
+        <div className={styles.section}>
+          <h4>Basic Information</h4>
 
-          <TextField
-            label="Address"
-            name="address"
-            value={form.address}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-          />
+          <label className={styles.label}>
+            Customer Name
+            <input
+              type="text"
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </label>
 
-          <TextField
-            label="Phone"
-            name="phone"
-            value={form.phone}
-            onChange={handleChange}
-            fullWidth
-            required
-            margin="normal"
-          />
+          <label className={styles.label}>
+            Phone Number
+            <input
+              type="tel"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              className={styles.input}
+              required
+            />
+          </label>
 
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Button
-              variant="outlined"
+          <label className={styles.label}>
+            Address
+            <textarea
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              className={styles.textarea}
+            />
+          </label>
+        </div>
+
+        {/* FINANCIAL INFO */}
+        <div className={styles.section}>
+          <h4>Financial Details</h4>
+
+          <label className={styles.label}>
+            Current Balance
+            <input
+              type="number"
+              name="currentBalance"
+              value={form.currentBalance}
+              onChange={handleChange}
+              className={styles.input}
+            />
+          </label>
+
+          <div className={styles.toggle}>
+            <span>Balance Direction</span>
+            <div className={styles.options}>
+              <label className={`${styles.opt} ${styles.green}`}>
+                <input
+                  type="radio"
+                  name="balanceDirection"
+                  value="Receivable"
+                  checked={form.balanceDirection === "Receivable"}
+                  onChange={handleChange}
+                />
+                <span>Receivable</span>
+              </label>
+              <label className={`${styles.opt} ${styles.red}`}>
+                <input
+                  type="radio"
+                  name="balanceDirection"
+                  value="Payable"
+                  checked={form.balanceDirection === "Payable"}
+                  onChange={handleChange}
+                />
+                <span>Payable</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* EXTRA */}
+        <div className={styles.section}>
+          <h4>Additional Info</h4>
+
+          <label className={styles.label}>
+            Reminder Date
+            <input
+              type="date"
+              name="reminderDate"
+              value={form.reminderDate}
+              onChange={handleChange}
+              className={styles.input}
+            />
+          </label>
+
+          <label className={styles.label}>
+            Notes
+            <textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              className={styles.textarea}
+            />
+          </label>
+        </div>
+
+        {error && <div className={styles.error}>{error}</div>}
+
+        {/* ACTIONS */}
+        <div className={`${styles.actions} ${styles.space}`}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.danger}`}
+            onClick={handleDelete}
+          >
+            Delete Customer
+          </button>
+          <div>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.ghost}`}
               onClick={() => navigate("/customers")}
-              sx={{ mr: 1 }}
             >
               Cancel
-            </Button>
-
-            <Button variant="contained" type="submit">
-              Update
-            </Button>
-          </Box>
-        </Box>
-      </Paper>
-    </Container>
+            </button>
+            <button
+              type="submit"
+              className={`${styles.btn} ${styles.primary}`}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <BufferIconInline size="small" color="white" />
+                  Updating...
+                </>
+              ) : (
+                "Update"
+              )}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   );
 }

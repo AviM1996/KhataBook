@@ -3,9 +3,8 @@ import {
   listenCustomers as listenCustomersService,
   addCustomer as addCustomerService,
   updateCustomer as updateCustomerService,
-  deleteCustomer as deleteCustomerService,
+  softDeleteCustomer as softDeleteCustomer,
 } from "../firebase/customer.service";
-
 import { useAuth } from "./useAuth";
 
 /**
@@ -21,78 +20,89 @@ export function useCustomers() {
   const [error, setError] = useState(null);
 
   /* ================= REALTIME LISTENER ================= */
-
   useEffect(() => {
-    if (authLoading) return;
+    console.log("🧠 AUTH STATE →", { authLoading, user, role });
+    
+
+    // ⏳ Auth still loading → keep hook loading
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
+    // ⛔ Auth done but no user/role
     if (!user || !role) {
+      console.log("⛔ Listener skipped (user/role missing)");
       setCustomers([]);
       setLoading(false);
       return;
     }
 
+    console.log("🔥 Calling listenCustomers", 
+      {
+      uid: user.uid,
+      role,
+    });
+
     setLoading(true);
 
-    // 🔥 role-aware listener
     const unsubscribe = listenCustomersService(
       (data) => {
+        console.log("📦 Customers received:", data);
         setCustomers(data);
         setLoading(false);
       },
-      role
+      role,
+      user.uid
     );
 
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, [user, role, authLoading]);
 
   /* ================= ACTIONS ================= */
 
-  const addCustomer = useCallback(
-    async (payload) => {
-      try {
-        setLoading(true);
-        await addCustomerService(payload);
-      } catch (err) {
-        console.error(err);
-        setError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const addCustomer = useCallback(async (payload) => {
+    try {
+      setLoading(true);
+      await addCustomerService(payload);
+    } catch (err) {
+      console.error(err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const updateCustomer = useCallback(
-    async (id, payload) => {
-      try {
-        setLoading(true);
-        await updateCustomerService(id, payload);
-      } catch (err) {
-        console.error(err);
-        setError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const updateCustomer = useCallback(async (id, payload) => {
+    try {
+      setLoading(true);
+      await updateCustomerService(id, payload);
+    } catch (err) {
+      console.error(err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-  const deleteCustomer = useCallback(
-    async (id) => {
-      try {
-        setLoading(true);
-        await deleteCustomerService(id);
-      } catch (err) {
-        console.error(err);
-        setError(err);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
+  const deleteCustomer = useCallback(async (id) => {
+    try {
+      setLoading(true);
+      await softDeleteCustomer(id);
+    } catch (err) {
+      console.error(err);
+      setError(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   /* ================= HELPERS ================= */
 
@@ -105,12 +115,13 @@ export function useCustomers() {
 
   return {
     customers,
+    customerCount: customers.length,
     loading,
     error,
     addCustomer,
     updateCustomer,
     deleteCustomer,
     getCustomerById,
-    role, // 👈 useful for UI badge / condition
+    role,
   };
 }

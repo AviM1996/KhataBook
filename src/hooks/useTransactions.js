@@ -4,69 +4,83 @@ import {
   query,
   where,
   orderBy,
-  limit,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase/firebase";
-import { auth } from "../firebase/firebase";
+import { useAuth } from "./useAuth";
 
-export function useTransactions(recentLimit = 5) {
+/**
+ * 🔥 useTransactions
+ * - Realtime
+ * - Permission safe
+ * - Ledger ready
+ */
+export function useTransactions(customerId, recentLimit = 5) {
+  const { user, loading: authLoading } = useAuth();
+
   const [transactions, setTransactions] = useState([]);
   const [recent, setRecent] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
-
-    // 🔄 all transactions
-    const qAll = query(
-      collection(db, "transactions"),
-      where("uid", "==", auth.currentUser.uid),
-      orderBy("createdAt", "desc")
-    );
-
-    // 🕒 recent transactions
-    const qRecent = query(
-      collection(db, "transactions"),
-      where("uid", "==", auth.currentUser.uid),
-      orderBy("createdAt", "desc"),
-      limit(recentLimit)
-    );
-
-    const unsubAll = onSnapshot(qAll, (snap) => {
-      setTransactions(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
+    if (authLoading || !user || !customerId) {
+      setTransactions([]);
+      setRecent([]);
       setLoading(false);
-    });
+      return;
+    }
 
-    const unsubRecent = onSnapshot(qRecent, (snap) => {
-      setRecent(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      );
-    });
+    setLoading(true);
 
-    return () => {
-      unsubAll();
-      unsubRecent();
-    };
-  }, [recentLimit]);
+    const q = query(
+      collection(db, "transactions"),
+      where("customerId", "==", customerId),
+      where("ownerId", "==", user.uid),
+      orderBy("createdAt", "asc")
+    );
 
-    const availableMonths = useMemo(() => {
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const list = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setTransactions(list);
+        setRecent(list.slice(0, recentLimit));
+        setError(null);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("❌ Error loading transactions:", err);
+        setError(err.message);
+        setTransactions([]);
+        setRecent([]);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user, authLoading, customerId, recentLimit]);
+
+  /* ===============================
+     Available months (YYYY-MM)
+  ================================ */
+  const availableMonths = useMemo(() => {
     const set = new Set();
     transactions.forEach((t) => {
       if (t.yearMonth) set.add(t.yearMonth);
     });
-
-    return Array.from(set)
-      .sort()
-      .reverse(); // latest first
+    return Array.from(set).sort().reverse();
   }, [transactions]);
 
   return {
     transactions,
     recent,
     loading,
-    availableMonths
+    error,
+    availableMonths,
   };
 }

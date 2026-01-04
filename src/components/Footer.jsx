@@ -1,14 +1,8 @@
+import styles from "./Footer.module.css";
+
 export default function Footer() {
   return (
-    <footer
-      style={{
-        padding: "12px",
-        textAlign: "center",
-        fontSize: "12px",
-        color: "#9ca3af",
-        background: "#020617",
-      }}
-    >
+    <footer className={styles.footer}>
       © {new Date().getFullYear()} LedgerFlow
     </footer>
   );

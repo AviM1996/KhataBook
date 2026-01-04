@@ -9,6 +9,7 @@ export function useAuth() {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
+      
       if (!u) {
         setUser(null);
         setRole(null);

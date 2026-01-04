@@ -7,6 +7,7 @@ export const authRoutes = [
     element: <Home/>,
     meta: {
       layout: 'auth',
+
     },
   },
   {
@@ -14,6 +15,7 @@ export const authRoutes = [
     element: <Login />,
     meta: {
       layout: 'auth',
+      public: true, 
     },
   },
   

@@ -1,54 +1,25 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {Link} from "@mui/material";
+import { Link } from "@mui/material";
 import { login } from "../../firebase/auth.service";
 import styles from "./SignIn.module.css";
-
+import { BufferIconInline } from "../../components/BufferIcon";
+import { useLogin } from "../../backend/hooks/useLogin";
 
 export default function Login() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from || "/dashboard";
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [emailValid, setEmailValid] = useState(null);
-  const [passwordValid, setPasswordValid] = useState(null);
-
-  const handleEmailChange = (e) => {
-    const value = e.target.value;
-    setEmail(value);
-    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    setEmailValid(value ? isValid : null);
-  };
-
-  const handlePasswordChange = (e) => {
-    const value = e.target.value;
-    setPassword(value);
-    setPasswordValid(value ? value.length >= 6 : null);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const res = await login(email, password);
-      console.log("LOGIN SUCCESS UID:", res.user.uid);
-
-      navigate(from, { replace: true });
-    } catch (err) {
-      console.error("LOGIN ERROR 👉", err);
-      setError("Invalid email or password");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    email,
+    password,
+    loading,
+    error,
+    emailValid,
+    passwordValid,
+    showPassword,
+    setShowPassword,
+    handleEmailChange,
+    handlePasswordChange,
+    handleSubmit,
+  } = useLogin();
 
   return (
     <div className={styles.page}>
@@ -77,6 +48,7 @@ export default function Login() {
             placeholder="Email address"
             value={email}
             onChange={handleEmailChange}
+             autoComplete="email" 
             required
           />
 
@@ -86,6 +58,7 @@ export default function Login() {
               placeholder="Password"
               value={password}
               onChange={handlePasswordChange}
+               autoComplete="current-password"
               required
             />
 
@@ -111,7 +84,14 @@ export default function Login() {
             className={styles.signInBtn}
             disabled={loading || !emailValid || !passwordValid}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (
+              <>
+                <BufferIconInline size="small" color="white" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 

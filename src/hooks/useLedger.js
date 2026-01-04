@@ -42,8 +42,8 @@ export function useLedger(customerId) {
     loadLedger();
   }, [loadLedger]);
 
-  // ➕ CREDIT / DEBIT with note
-  const addEntry = async (type, amount, note) => {
+  // ➕ CREDIT / DEBIT with note (🔥 FIXED ORDER)
+  const addEntry = async (customerId, type, amount, note) => {
     await addTransaction({
       customerId,
       type,

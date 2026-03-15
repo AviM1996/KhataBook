@@ -1,0 +1,32 @@
+.layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  padding: 88px 24px 24px 24px;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .main {
+    padding: 80px 16px 16px 16px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .main {
+    padding: 72px 12px 12px 12px;
+  }
+}
+

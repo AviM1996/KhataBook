@@ -1,0 +1,114 @@
+/* =========================================
+   1. BASE CARD STYLES
+========================================= */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  padding: 16px 18px;
+  border-radius: 14px;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.clickable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+  border-color: var(--border-hover);
+}
+
+/* =========================================
+   2. TYPOGRAPHY & TEXT Elements
+========================================= */
+.card p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: color 0.3s ease;
+  margin-bottom: 8px;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.loading {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* =========================================
+   3. GROWTH INDICATOR PILLS
+========================================= */
+.growth {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.growthUp {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+.growthDown {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* =========================================
+   4. COLOR VARIANTS (Modifiers)
+========================================= */
+.card.green h3 { color: var(--accent-green); }
+.card.red h3 { color: var(--accent-red); }
+.card.blue h3 { color: var(--accent-blue); }
+.card.danger h3 { color: #fb7185; }
+
+/* =========================================
+   5. RESPONSIVE DESIGN (Media Queries)
+========================================= */
+/* Tablet Styles */
+@media (max-width: 768px) {
+  .card {
+    padding: 12px 14px;
+    min-width: 130px;
+  }
+  .card p {
+    font-size: 0.68rem;
+    margin-bottom: 6px;
+  }
+  .card h3 {
+    font-size: 1.15rem;
+  }
+  .growth {
+    margin-top: 6px;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 10px 12px;
+    min-width: 110px;
+  }
+  .card p {
+    font-size: 0.62rem;
+    margin-bottom: 4px;
+  }
+  .card h3 {
+    font-size: 1.05rem;
+  }
+}

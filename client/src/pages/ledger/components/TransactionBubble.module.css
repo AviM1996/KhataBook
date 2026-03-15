@@ -1,0 +1,125 @@
+/* ===== TRANSACTION BUBBLE ===== */
+.bubble {
+  display: flex;
+  max-width: 72%;
+  position: relative;
+}
+
+/* SALE / PURCHASE — right aligned */
+.bubble.right {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+/* PAYMENT — left aligned */
+.bubble.left {
+  align-self: flex-start;
+}
+
+/* RETURN — center */
+.bubble.center {
+  align-self: center;
+  max-width: 55%;
+}
+
+.card {
+  padding: 10px 14px;
+  border-radius: 14px;
+  position: relative;
+  min-width: 160px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+/* Sale / Purchase bubble */
+.bubble.right .card {
+  background: linear-gradient(135deg, rgba(59,130,246,0.18), rgba(139,92,246,0.15));
+  border: 1px solid rgba(59,130,246,0.3);
+  border-bottom-right-radius: 4px;
+}
+
+/* Payment bubble */
+.bubble.left .card {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-bottom-left-radius: 4px;
+}
+
+/* Return bubble */
+.bubble.center .card {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  text-align: center;
+  min-width: 140px;
+}
+
+.typeRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.typeBadge {
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bubble.right .typeBadge {
+  background: rgba(59,130,246,0.2);
+  color: var(--accent-blue);
+}
+
+.bubble.left .typeBadge {
+  background: rgba(34,197,94,0.2);
+  color: var(--accent-green);
+}
+
+.bubble.center .typeBadge {
+  background: rgba(239,68,68,0.15);
+  color: var(--accent-red);
+  margin: 0 auto 4px;
+  display: inline-block;
+}
+
+.amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.bubble.right .amount { color: var(--accent-blue); }
+.bubble.left .amount  { color: var(--accent-green); }
+.bubble.center .amount { color: var(--accent-red); }
+
+.meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+
+.note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 4px;
+}
+
+.timestamp {
+  font-size: 0.68rem;
+  color: var(--text-tertiary);
+  display: block;
+  margin-top: 5px;
+  text-align: right;
+}
+
+.bubble.left .timestamp,
+.bubble.center .timestamp {
+  text-align: left;
+}

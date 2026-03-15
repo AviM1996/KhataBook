@@ -1,0 +1,76 @@
+.container {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+
+.chartWrap {
+  width: 100%;
+  min-height: 280px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+/* Custom Tooltip */
+.tooltip {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 8px 24px var(--shadow);
+  backdrop-filter: blur(8px);
+}
+
+.tooltipLabel {
+  margin: 0 0 6px 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tooltipValue {
+  margin: 2px 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.tooltipHint {
+  margin: 8px 0 0 0;
+  font-size: 0.68rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-style: italic;
+  border-top: 1px solid var(--border-color);
+  padding-top: 6px;
+}
+
+@media (max-width: 480px) {
+  .chartWrap {
+    min-height: 220px;
+  }
+  .header {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

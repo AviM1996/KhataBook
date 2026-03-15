@@ -1,0 +1,160 @@
+/* ===== MASTERS PAGE — page-level layout ===== */
+
+/* ─── Time Filter Row ─── */
+.timeFilterRow {
+  margin-bottom: 20px;
+}
+
+/* ─── Summary Cards Grid ─── */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ─── Search + Action Bar ─── */
+.searchActionBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* ─── Name Cell with Avatar ─── */
+.nameCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.boldText {
+  font-weight: 600;
+  display: block;
+  white-space: nowrap;
+}
+
+.addressText {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  display: block;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phoneText {
+  color: var(--accent-blue);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.lastTx {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.dimText {
+  color: var(--text-tertiary);
+}
+
+/* ─── Colored Badges ─── */
+.badge {
+  padding: 4px 10px;
+  border-radius: 7px;
+  display: inline-block;
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.badgeGreen {
+  color: var(--accent-green);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badgeRed {
+  color: var(--accent-red);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.badgeBlue {
+  color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1100px) {
+  .summaryScroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* IE and Edge */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .summaryScroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .summaryGrid {
+    display: flex !important;
+    gap: 14px;
+    width: max-content;
+  }
+
+  .summaryGrid > * {
+    min-width: 220px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .searchActionBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 600px) {
+  .summaryGrid {
+    gap: 12px;
+  }
+
+  .summaryGrid > * {
+    min-width: 145px;
+  }
+}
+
+@media (max-width: 400px) {
+  .summaryGrid > * {
+    min-width: 130px;
+  }
+}

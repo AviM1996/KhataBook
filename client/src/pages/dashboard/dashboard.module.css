@@ -1,0 +1,293 @@
+.headerRow{
+  display:flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 2px 0 0 0;
+}
+
+/* =============================================
+   LedgerFlow – SaaS Dashboard Styles
+   ============================================= */
+
+/* ─── Time Filter Row ─── */
+.filterRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 24px;
+}
+
+/* ─── Summary Cards Scroll ─── */
+.cardsScroll {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+}
+
+/* ─── Charts Row ─── */
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chartCard {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.chartCard:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+.chartCardSmall {
+  min-width: 0;
+}
+
+/* ─── Table Card ─── */
+.tableCard {
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.tableCard:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+/* ─── Color helpers ─── */
+.green { color: var(--accent-green); }
+.red   { color: var(--accent-red); }
+.blue  { color: var(--accent-blue); }
+
+/* =============================================
+   RESPONSIVE: Tablet (≤1024px)
+   ============================================= */
+@media (max-width: 1024px) {
+  .cardsScroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* IE and Edge */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .cardsScroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cardsGrid {
+    display: flex;
+    gap: 12px;
+    width: max-content;
+  }
+
+  .cardsGrid > * {
+    min-width: 160px;
+    flex-shrink: 0;
+  }
+
+  .chartsRow {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .chartCardSmall {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .headerRow {
+    margin-bottom: 12px;
+    gap: 6px;
+  }
+  .pageTitle {
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .subtitle {
+    font-size: 11px;
+    line-height: 1.2;
+    max-width: 180px; /* Optional text wrapping safety */
+  }
+}
+
+/* =============================================
+   RESPONSIVE: Mobile (≤640px)
+   ============================================= */
+@media (max-width: 640px) {
+  .cardsScroll {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .cardsGrid {
+    gap: 10px;
+  }
+
+  .cardsGrid > * {
+    min-width: 140px;
+  }
+
+  .chartsRow {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .chartCard,
+  .tableCard {
+    padding: 16px;
+    border-radius: 14px;
+  }
+}
+
+/* =============================================
+   RESPONSIVE: Small phones (≤400px)
+   ============================================= */
+@media (max-width: 400px) {
+  .cardsGrid > * {
+    min-width: 125px;
+  }
+
+  .chartCard,
+  .tableCard {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .pageTitle {
+    font-size: 15px;
+  }
+  .subtitle {
+    font-size: 10.5px;
+  }
+}
+
+/* =============================================
+   Transaction Detail (inside DrilldownModal)
+   ============================================= */
+.txDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.txDetailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.txDetailRow:last-of-type {
+  border-bottom: none;
+}
+
+.txDetailLabel {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  font-weight: 600;
+}
+
+.txDetailValue {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.txDetailAmount {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent-green);
+  font-variant-numeric: tabular-nums;
+}
+
+.txDetailBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.txBadgeSale {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.txBadgePayment {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
+
+.txBadgePurchase {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+}
+
+.txDetailStatus {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.txDetailBtn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.txDetailBtn:hover {
+  background: #0ea5e9;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}

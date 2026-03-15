@@ -1,0 +1,181 @@
+.container {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+.tableWrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.table thead th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: 12px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.row:hover td {
+  background: var(--bg-tertiary);
+}
+
+.rowClickable {
+  cursor: pointer;
+}
+
+.rowClickable:hover td {
+  background: var(--bg-hover);
+}
+
+.rowClickable:active td {
+  background: var(--bg-tertiary);
+}
+
+.alignRight {
+  text-align: right !important;
+}
+
+/* Party cell with avatar */
+.partyCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent-blue), #6366f1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.partyName {
+  font-weight: 600;
+}
+
+/* Type badges */
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sale {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.payment {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
+
+.purchase {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+}
+
+.amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* Arrow for clickable rows */
+.arrowCell {
+  width: 30px;
+}
+
+.rowArrow {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  transition: all 0.2s ease;
+}
+
+.rowClickable:hover .rowArrow {
+  color: var(--accent-blue);
+  transform: translateX(3px);
+}
+
+@media (max-width: 600px) {
+  .table thead th {
+    font-size: 0.68rem;
+    padding: 8px;
+  }
+  .table tbody td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+}

@@ -1,0 +1,56 @@
+/* ===== LEDGER V2 — Two-panel chat-style, truly fixed layout ===== */
+
+.shell {
+  /* Lock to the area below the fixed 64px app header */
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.leftPanel {
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* ─── Tablet (≤ 900px): narrow sidebar ─── */
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 260px 1fr;
+    top: 60px; /* tablet header height */
+  }
+}
+
+/* ─── Mobile (≤ 768px): single panel at a time ─── */
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    top: 56px; /* mobile header height */
+  }
+
+  /* showRight → hide left panel */
+  .shell.showRight .leftPanel {
+    display: none;
+  }
+
+  /* showLeft → hide right panel */
+  .shell.showLeft .rightPanel {
+    display: none;
+  }
+}

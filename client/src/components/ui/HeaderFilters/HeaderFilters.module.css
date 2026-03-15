@@ -1,0 +1,14 @@
+.filtersWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .filtersWrapper {
+    gap: 8px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

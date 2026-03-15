@@ -1,0 +1,39 @@
+/* ===== LEDGER LAYOUT — Two-panel root shell ===== */
+.shell {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  height: calc(100vh - 64px); /* subtract app header height */
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* ─── Mobile: single column ─── */
+@media (max-width: 768px) {
+  .shell {
+    grid-template-columns: 1fr;
+    height: 100vh;
+  }
+
+  /* hide the panel that isn't active */
+  .shell.showRight .leftPanel {
+    display: none;
+  }
+  .shell.showLeft .rightPanel {
+    display: none;
+  }
+}
+
+.leftPanel {
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}

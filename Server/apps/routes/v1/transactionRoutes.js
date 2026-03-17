@@ -5,7 +5,7 @@ const {
   createTransaction,
   updateTransaction,
   deleteTransaction
-} = require('../controllers/transactionController');
+} = require('../../controllers/transactionController');
 
 // Define API routes for transactions
 router.route('/')

@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../../middleware/authMiddleware');
+
 const {
   getCustomers,
   getCustomerById,
@@ -7,7 +9,9 @@ const {
   updateCustomer,
   softDeleteCustomer,
   getCustomerBalance
-} = require('../controllers/customerController');
+} = require('../../controllers/customerController');
+
+router.use(authMiddleware);
 
 router.route('/')
   .get(getCustomers)

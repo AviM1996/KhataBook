@@ -2,23 +2,29 @@ import styles from "./SignIn.module.css";
 import { Button,Logo} from "../../components";
 import { useLogin } from "../../hooks/useLogin";
 import { Link } from "@mui/material";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function Login() {
-  const {email,password,loading,error,emailValid,passwordValid,showPassword,setShowPassword,handleEmailChange,handlePasswordChange,handleSubmit,} = useLogin();
+  const {email,
+    password,
+    showPassword,
+    rememberMe,
+    loading,
+    error,
+    setShowPassword,
+    setRememberMe,
+    handleEmailChange,
+    handlePasswordChange,
+    handleSubmit} = useLogin();
 
   return (
     <div className={styles.page}>
       <div className={styles.card}>
         <Logo/>
-
         <h3>Sign in to your account</h3>
         <p className={styles.sub}>Access your ledger securely</p>
 
-        {error && (
-          <div className={styles.error}>
-            {error}
-          </div>
-        )}
+        {error && (<div className={styles.error}>{error}</div>)}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -26,7 +32,7 @@ export default function Login() {
             placeholder="Email address"
             value={email}
             onChange={handleEmailChange}
-             autoComplete="email" 
+            autoComplete="email" 
             required
           />
 
@@ -36,7 +42,7 @@ export default function Login() {
               placeholder="Password"
               value={password}
               onChange={handlePasswordChange}
-               autoComplete="current-password"
+              autoComplete="current-password"
               required
             />
 
@@ -44,16 +50,20 @@ export default function Login() {
               className={styles.eyeIcon}
               onClick={() => setShowPassword((prev) => !prev)}
               title={showPassword ? "Hide password" : "Show password"}
-            >
-              {showPassword ? "🙈" : "👁️"}
+            >{showPassword ? <FiEyeOff /> : <FiEye />}
             </span>
           </div>
 
           <div className={styles.row}>
             <label>
-              <input type="checkbox" />
+              <input 
+              type="checkbox" 
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              />
               Remember me
             </label>
+
             <Link href="#">Forgot Password</Link>
           </div>
 
@@ -62,7 +72,7 @@ export default function Login() {
             variant="primary"
             fullWidth
             loading={loading}
-            disabled={!emailValid || !passwordValid}
+            disabled={loading}
           >
             Sign In
           </Button>

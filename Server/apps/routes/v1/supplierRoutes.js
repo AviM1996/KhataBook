@@ -7,7 +7,7 @@ const {
   updateSupplier,
   softDeleteSupplier,
   getSupplierBalance
-} = require('../controllers/supplierController');
+} = require('../../controllers/supplierController');
 
 // All routes are public for now based on other files
 router.route('/')

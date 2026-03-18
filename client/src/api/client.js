@@ -13,7 +13,7 @@ function onRefreshed() {
 }
 
 async function refreshToken() {
-  const res = await fetch(`${BASE_URL}/auth/refresh`, {
+  const res = await fetch(`${BASE_URL}auth/refresh`, {
     method: 'POST',
     credentials: 'include',
   });

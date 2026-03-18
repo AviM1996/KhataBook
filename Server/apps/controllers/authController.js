@@ -97,8 +97,9 @@ const refreshTokenHandler = (req, res) => {
 
     res.cookie("accessToken", newAccessToken, {
       httpOnly: true,
+      secure: false, // 👉 true in production (HTTPS)
       sameSite: "Lax",
-      maxAge: 15 * 60 * 1000
+      maxAge: 15 * 60 * 1000 // 15 min
     });
 
     res.json({ message: "Refreshed" });
@@ -145,7 +146,7 @@ const registerUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: roleDoc ? roleDoc.name : 'user',
-        token: generateToken(user._id),
+        token: generateAccessToken({ id: user._id, name: user.name, email: user.email }),
       });
     } else {
       res.status(400).json({ message: 'Invalid user data' });

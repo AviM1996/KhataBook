@@ -24,12 +24,13 @@ export function AuthProvider({ children }) {
     setUser(userData);
   }
 
-  function logoutUser() {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("user_info");
-    setToken(null);
-    setUser(null);
-    setRole(null);
+  async function logoutUser() {
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      setUser(null);
+    }
   }
 
   return (

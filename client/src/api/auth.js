@@ -21,7 +21,20 @@ export async function login(email, password) {
 }
 
 export async function logout() {
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('user_info');
-  window.location.replace("/login");
+  try {
+    await client('auth/logout', { method: 'POST' });
+    window.location.replace("/login");
+  } catch (error) {
+    console.error("Logout failed", error);
+    window.location.replace("/login");
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const data = await client('auth/me');
+    return data;
+  } catch (error) {
+    throw new Error(error.message || "Failed to fetch user");
+  }
 }

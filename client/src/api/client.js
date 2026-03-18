@@ -52,7 +52,8 @@ async function client(endpoint, { body, headers: customHeaders, ...customConfig 
 
       } catch (err) {
         isRefreshing = false;
-        window.location.replace("/login");
+        // Do not redirect here to avoid reload loops. 
+        // Let AuthContext handle the 'null' user state.
         throw err;
       }
     }

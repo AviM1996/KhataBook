@@ -21,20 +21,24 @@ export default defineConfig({
       manifest: {
         name: 'LedgerFlow',
         short_name: 'LedgerFlow',
+        description: 'Digital ledger and accounting PWA for managing customers, transactions, and ledgers',
         start_url: '/',
         display: 'standalone',
+        orientation: 'portrait',
         background_color: '#ffffff',
         theme_color: '#1976d2',
         icons: [
           {
             src: '/pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
             src: '/pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           }
         ]
       }

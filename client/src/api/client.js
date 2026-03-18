@@ -1,22 +1,36 @@
-const BASE_URL = '/api';
+const BASE_URL = 'http://localhost:8080/api/v1/';
 
-async function client(endpoint, { body, ...customConfig } = {}) {
-  const token = localStorage.getItem('auth_token');
+let isRefreshing = false;
+let refreshSubscribers = [];
 
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+function subscribeTokenRefresh(cb) {
+  refreshSubscribers.push(cb);
+}
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+function onRefreshed() {
+  refreshSubscribers.forEach((cb) => cb());
+  refreshSubscribers = [];
+}
+
+async function refreshToken() {
+  const res = await fetch(`${BASE_URL}/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    throw new Error("Refresh token failed");
   }
+}
 
+async function client(endpoint, { body, headers: customHeaders, ...customConfig } = {}) {
   const config = {
     method: body ? 'POST' : 'GET',
+    credentials: 'include',
     ...customConfig,
     headers: {
-      ...headers,
-      ...customConfig.headers,
+      'Content-Type': 'application/json',
+      ...customHeaders,
     },
   };
 
@@ -24,37 +38,55 @@ async function client(endpoint, { body, ...customConfig } = {}) {
     config.body = JSON.stringify(body);
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, config);
-  
-  let data;
-  
-  const contentType = response.headers.get('content-type');
-  if (contentType && contentType.includes('application/json')) {
-    data = await response.json();
-  } else {
-    data = await response.text();
-  }
+  let response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-  if (response.ok) {
-    return data;
-  } else {
-    // Standardize error handling thrown to components
-    const errorMessage = data?.message || typeof data === 'string' ? data : 'API Error';
-    const error = new Error(errorMessage);
-    error.status = response.status;
-    error.data = data;
+  if (response.status === 401 && !endpoint.includes('/auth/refresh')) {
 
-    // Handle 401 Unauthorized globally (e.g., token expired)
-    if (response.status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user_info');
-      if (window.location.pathname !== '/login') {
-         window.location.replace('/login');
+    if (!isRefreshing) {
+      isRefreshing = true;
+
+      try {
+        await refreshToken();
+        isRefreshing = false;
+        onRefreshed(); 
+
+      } catch (err) {
+        isRefreshing = false;
+        window.location.replace("/login");
+        throw err;
       }
     }
 
-    throw error;
+    return new Promise((resolve, reject) => {
+      subscribeTokenRefresh(async () => {
+        try {
+          const retryRes = await fetch(`${BASE_URL}${endpoint}`, config);
+
+          const contentType = retryRes.headers.get('content-type');
+          const data = contentType?.includes('application/json')? await retryRes.json(): await retryRes.text();
+
+          if (retryRes.ok) {
+            resolve(data);
+          } else {
+            reject(new Error(data?.message || "Retry failed"));
+          }
+
+        } catch (err) {
+          reject(err);
+        }
+      });
+    });
   }
+
+  const contentType = response.headers.get('content-type');
+
+  const data = contentType?.includes('application/json')? await response.json(): await response.text();
+
+  if (!response.ok) {
+    throw new Error(data?.message || "API Error");
+  }
+
+  return data;
 }
 
 export default client;

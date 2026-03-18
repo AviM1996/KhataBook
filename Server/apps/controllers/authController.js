@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Role = require("../models/Role")
 const UserHasRoleMapping = require('../models/userHasRoleMapping');
+const config = require('../config/config');
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt")
 
 const loginUser = async (req, res) => {
@@ -47,17 +48,63 @@ const loginUser = async (req, res) => {
 
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
-    const token = {
-      accessToken,
-      accessTokenExpiresIn: config.secret.accessExpire,
-      refreshToken,
-      refreshTokenExpiresIn: config.secret.refreshExpire
-    }
 
-    res.json({ _id: user.id, token: token });
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: false, // 👉 true in production (HTTPS)
+      sameSite: "Lax",
+      maxAge: 15 * 60 * 1000 // 15 min
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
+    res.json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        isActive: user.isActive
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+const refreshTokenHandler = (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, config.auth.refreshSecret);
+
+    const newAccessToken = generateAccessToken({
+      id: decoded.id,
+      email: decoded.email,
+      name: decoded.name,
+      isActive: decoded.isActive
+    });
+
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      sameSite: "Lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.json({ message: "Refreshed" });
+
+  } catch {
+    return res.status(401).json({ message: "Invalid refresh token" });
   }
 };
 
@@ -108,20 +155,8 @@ const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Authenticate a user
-// @route   POST /api/auth/login
-// @access  Public
-
-
-// Generate JWT
-const generateToken = (id) => {
-  const config = require('../config/config');
-  return jwt.sign({ id }, config.auth.accessSecret, {
-    expiresIn: config.auth.accessExpire,
-  });
-};
-
 module.exports = {
   registerUser,
+  refreshTokenHandler,
   loginUser,
 };

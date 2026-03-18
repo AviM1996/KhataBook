@@ -8,15 +8,16 @@ export function useLogin() {
   const location = useLocation();
   const { loginUser } = useAuth();
 
-  const from = location.state?.from || "/dashboard";
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [emailValid, setEmailValid] = useState(null);
   const [passwordValid, setPasswordValid] = useState(null);
@@ -36,13 +37,23 @@ export function useLogin() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
+    if (!email || !password) {
+      return setError("Email and Password are required");
+    }
+
+    if (emailValid === false || passwordValid === false) {
+      return setError("Please enter valid credentials");
+    }
+
     setError("");
     setLoading(true);
 
     try {
       const result = await login(email, password);
-      // Update React context state immediately so ProtectedRoute sees the user
-      loginUser(result.user, result.token);
+      loginUser(result.user);
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Invalid email or password");

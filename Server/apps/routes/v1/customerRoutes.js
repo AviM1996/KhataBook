@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../../middleware/authMiddleware');
+const partyController=require('../../controllers/partyController')
 
 const {
   getCustomers,
@@ -12,6 +13,8 @@ const {
 } = require('../../controllers/customerController');
 
 router.use(authMiddleware);
+
+router.get('/all',partyController.viewAllParty)
 
 router.route('/')
   .get(getCustomers)

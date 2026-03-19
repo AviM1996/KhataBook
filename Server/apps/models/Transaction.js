@@ -1,64 +1,51 @@
 const mongoose = require('mongoose');
 
-const transactionSchema = new mongoose.Schema(
-  {
-    customerId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Customer',
-      required: false
+const transactionSchema = new mongoose.Schema({
+
+    partyId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Party',
+        required: true
     },
-    supplierId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Supplier',
-      required: false
-    },
-    recordType: {
-      type: String,
-      enum: ['CUSTOMER', 'SUPPLIER'],
-      required: [true, 'Record type is required']
-    },
+
     amount: {
-      type: Number,
-      required: [true, 'Amount is required'],
-      min: [0, 'Amount cannot be negative']
+        type: Number,
+        required: true
     },
+
     type: {
-      type: String,
-      // For Customer: SALE (Debit), RETURN (Credit), PAYMENT (Credit)
-      // For Supplier: PURCHASE (Credit), RETURN (Debit), PAYMENT (Debit)
-      enum: ['CREDIT', 'DEBIT', 'SALE', 'RETURN', 'PAYMENT', 'PURCHASE'],
-      required: [true, 'Transaction type is required']
+        type: String,
+        enum: ['SALE', 'PURCHASE', 'PAYMENT', 'RETURN'],
+        required: true
     },
+
     description: {
-      type: String,
-      trim: true
+        type: String,
+        trim: true
     },
     paymentMethod: {
-      type: String,
-      enum: ['CASH', 'UPI', 'BANK_TRANSFER', 'CHEQUE', 'N/A'],
-      default: 'N/A'
+        type: String,
+        enum: ['CASH', 'UPI', 'BANK_TRANSFER', 'CHEQUE', 'N/A'],
+        default: 'N/A'
     },
     date: {
-      type: Date,
-      default: Date.now
+        type: Date,
+        default: Date.now
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
     },
     updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false
     }
-  },
-  {
-    timestamps: true
-  }
-);
 
-// Indexes to speed up customer transaction history queries
-// transactionSchema.index({ customerId: 1, date: -1 });
+},
+    {
+        timestamps: true
+    });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

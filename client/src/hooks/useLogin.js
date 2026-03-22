@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { login } from "../api/auth";
+import { login,logout } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
 export function useLogin() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginUser } = useAuth();
+  const { loginUser,logoutUser } = useAuth();
 
   const from = location.state?.from?.pathname || "/dashboard";
 
@@ -62,6 +62,12 @@ export function useLogin() {
     }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    logoutUser();
+    navigate("/login", { replace: true });
+  }
+
   return {
     email,
     password,
@@ -76,5 +82,6 @@ export function useLogin() {
     handleEmailChange,
     handlePasswordChange,
     handleSubmit,
+    handleLogout
   };
 }

@@ -1,84 +1,94 @@
 const mongoose = require('mongoose');
 
-const partySchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: [true, 'Please add a customer name'],
-            trim: true
-        },
+// const lastTransactionSchema = new mongoose.Schema({
+//     amount: {
+//         type: Number,
+//         default: 0
+//     },
+//     type: {
+//         type: String,
+//         enum: ['SALE', 'RETURN', 'PURCHASE', 'PAYMENT','OPENING_BALANCE'],
+//         default: "OPENING_BALANCE"
+//     },
+//     date: {
+//         type: Date,
+//         default: null
+//     }
+// }, { _id: false });
 
-        phone: {
-            type: String,
-            required: [true, 'Please add a phone number'],
-            trim: true
-        },
+const partySchema = new mongoose.Schema({
 
-        address: {
-            type: String,
-            trim: true
-        },
-
-        recordType: {
-            type: String,
-            enum: ['CUSTOMER', 'SUPPLIER'],
-            required: true
-        },
-
-        openingBalance: {
-            type: Number,
-            default: 0
-        },
-
-        balanceDirection: {
-            type: String,
-            enum: ['Receivable', 'Payable'],
-            default: 'Receivable'
-        },
-
-        reminderDate: {
-            type: Date
-        },
-
-        notes: {
-            type: String,
-            trim: true
-        },
-        isActive: {
-            type: Boolean,
-            default: true // Used for soft deletes
-        },
-        totalSales: { type: Number, default: 0 },
-        totalPaid: { type: Number, default: 0 },
-        totalDue: { type: Number, default: 0 },
-        lastTransaction: {
-            amount: {
-                type: Number,
-                default: 0
-            },
-            type: {
-                type: String,
-                enum: ['SALE', 'PURCHASE', 'PAYMENT', 'RETURN']
-            },
-            date: {
-                type: Date
-            }
-        },
-
-        createdBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: false
-        },
-        updatedBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-            required: false
-        }
+    name: {
+        type: String,
+        required: true,
+        trim: true
     },
-    {
-        timestamps: true
+
+    phone: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+
+    address: {
+        type: String,
+        trim: true
+    },
+
+    recordType: {
+        type: String,
+        enum: ['CUSTOMER', 'SUPPLIER'],
+        required: true
+    },
+
+    // balanceDirection: {
+    //     type: String,
+    //     enum: ['Receivable', 'Payable'],
+    // },
+
+    notes: {
+        type: String,
+        trim: true
+    },
+
+    // totalSales: {
+    //     type: Number,
+    //     default: 0
+    // },
+
+    // totalPurchase: {
+    //     type: Number,
+    //     default: 0
+    // },
+
+    // totalPaid: {
+    //     type: Number,
+    //     default: 0
+    // },
+
+    // outstanding: {
+    //     type: Number,
+    //     default: 0
+    // },
+
+    // lastTransection: {
+    //     type: Number,
+    //     default: 0
+    // },
+
+    isActive: {
+        type: Boolean,
+        default: true
     }
-);
+
+}, {
+    timestamps: true
+});
+
+
+partySchema.index({ name: 1 });
+partySchema.index({ recordType: 1 });
+partySchema.index({ isActive: 1 });
 
 module.exports = mongoose.model('Party', partySchema);

@@ -1,0 +1,152 @@
+/* ===== TRANSACTION FORM — clean single-row bottom bar ===== */
+
+/* ─── Field height token — ONE place to change ─── */
+:root {
+  --form-field-h: 36px;
+}
+
+.formBar {
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  padding: 10px 20px;
+  flex-shrink: 0;
+}
+
+/* ─── Desktop: all in one flex row ─── */
+.row {
+  display: flex;
+  align-items: stretch; /* all columns same height */
+  gap: 10px;
+  width: 100%;
+}
+
+/* ─── Each label + input pair ─── */
+.field {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* label top, input bottom → same level */
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* fixed widths for specific fields so the row never breaks */
+.field.typeField   { flex: 0 0 130px; }
+.field.amtField    { flex: 0 0 110px; }
+.field.methodField { flex: 0 0 130px; }
+.field.dateField   { flex: 0 0 130px; }
+.field.noteField   { flex: 1 1 0;     min-width: 100px; }
+
+.field label {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.field input,
+.field select {
+  height: var(--form-field-h);
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-family: inherit;
+  transition: border-color 0.18s;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.field input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* ─── Submit button — same height as inputs, auto width ─── */
+.submitBtn {
+  height: var(--form-field-h);
+  padding: 0 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent-blue);
+  color: #fff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  align-self: flex-end; /* pin to bottom edge with inputs */
+}
+
+.submitBtn:hover  { opacity: 0.88; }
+.submitBtn:active { transform: scale(0.97); }
+.submitBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ─── Tablet (≤ 1100px): wrap into two rows ─── */
+@media (max-width: 1100px) {
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .field.typeField,
+  .field.amtField,
+  .field.methodField,
+  .field.dateField {
+    flex: 1 1 calc(50% - 10px);
+  }
+
+  .field.noteField {
+    flex: 1 1 100%;
+  }
+
+  .submitBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ─── Mobile (≤ 600px): Compact Grid ─── */
+@media (max-width: 600px) {
+  .formBar {
+    padding: 8px 12px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+  }
+
+  .field.typeField,
+  .field.amtField,
+  .field.methodField,
+  .field.dateField {
+    flex: unset;
+    width: 100%;
+  }
+
+  .field.noteField {
+    grid-column: 1 / -1; 
+  }
+
+  .submitBtn {
+    grid-column: 1 / -1;
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -3,7 +3,7 @@ import { routes } from "./index";
 import AuthGuard from "../guards/AuthGuard";
 import PublicGuard from "../guards/PublicRoute";
 import { useAuth } from "../context/AuthContext";
-import Layout from "../components/Layout";
+import Layout from "../components/layout/Layout";
 import { LoaderOverlay } from "../components";
 
 export default function AppRouter() {

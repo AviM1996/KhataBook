@@ -1,5 +1,5 @@
 import styles from "./SignIn.module.css";
-import { Button,Logo} from "../../components";
+import { Button,Logo,Footer} from "../../components";
 import { useLogin } from "../../hooks/useLogin";
 import { Link } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
@@ -78,7 +78,7 @@ export default function Login() {
           </Button>
         </form>
 
-        <footer>© 2026 LedgerFlow</footer>
+        <Footer />
       </div>
     </div>
   );

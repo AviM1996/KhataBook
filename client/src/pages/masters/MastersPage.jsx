@@ -1,258 +1,173 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { useMasters } from '../../hooks/useMasters';
+import { useMastersStore } from '../../store/useMastersStore';
+import { usePartyQuery } from '../../hooks/usePartyQuery';
+import { usePartyMutations } from '../../hooks/usePartyMutations';
+import { ENTITY_CONFIG, getConfigByTab } from '../../config/entityConfig';
+import { getEntityColumns } from '../../config/entityColumns';
 import {
   Page,
   Button,
-  Tabs,
   SearchBar,
-  TimeFilter,
   SummaryCard,
   DataTable,
   ActionButtons,
   CreateEditModal,
-  MoreMenu,
   ConfirmDeleteModal,
   PageHeader,
   HeaderFilters,
+  Pagination,
 } from '../../components';
 import styles from './MastersPage.module.css';
 
-/* ─── FORM FIELD CONFIGS ─── */
-const CUSTOMER_FIELDS = [
-  { name: 'name',             label: 'Name',              type: 'text',   required: true },
-  { name: 'phone',            label: 'Phone',             type: 'text',   required: true },
-  { name: 'address',          label: 'Address',           type: 'text' },
-  { name: 'openingBalance',   label: 'Opening Balance',   type: 'number' },
-  {
-    name: 'balanceDirection', label: 'Balance Direction', type: 'select',
-    options: [
-      { value: 'Receivable', label: 'Receivable (To Collect)' },
-      { value: 'Payable',    label: 'Payable (To Give)' },
-    ],
-  },
-];
-
-const SUPPLIER_FIELDS = [
-  { name: 'name',             label: 'Name',              type: 'text',   required: true },
-  { name: 'phone',            label: 'Phone',             type: 'text',   required: true },
-  { name: 'address',          label: 'Address',           type: 'text' },
-  { name: 'openingBalance',   label: 'Opening Balance',   type: 'number' },
-  {
-    name: 'balanceDirection', label: 'Balance Direction', type: 'select',
-    options: [
-      { value: 'Payable',    label: 'Payable (To Give)' },
-      { value: 'Receivable', label: 'Receivable (To Collect)' },
-    ],
-  },
-];
-
-/* ─── HELPERS ─── */
-function formatCurrency(val) {
-  return `₹${Math.abs(val || 0).toLocaleString('en-IN')}`;
-}
-
-function formatLastTx(row) {
-  if (!row.lastTransactionDate && !row.lastTransactionAmount) return <span className={styles.dimText}>—</span>;
-  const date = row.lastTransactionDate
-    ? new Date(row.lastTransactionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })
-    : '—';
-  const amt = row.lastTransactionAmount != null
-    ? ` (₹${Math.abs(row.lastTransactionAmount).toLocaleString('en-IN')})`
-    : '';
-  return <span className={styles.lastTx}>{date}{amt}</span>;
-}
-
-/* ─── TABLE COLUMN FACTORY ─── */
-const getColumns = (type, onEdit, onViewLedger, onDeleteRequest) => [
-  {
-    key: 'name',
-    label: 'Customer Name',
-    render: (row) => (
-      <div className={styles.nameCell}>
-        <span className={styles.avatar}>{(row.name || '?').charAt(0).toUpperCase()}</span>
-        <div>
-          <span className={styles.boldText}>{row.name || '—'}</span>
-          {row.address && <span className={styles.addressText}>{row.address}</span>}
-        </div>
-      </div>
-    ),
-  },
-  {
-    key: 'phone',
-    label: 'Phone',
-    render: (row) => <span className={styles.phoneText}>{row.phone || '—'}</span>,
-  },
-  {
-    key: 'totalSales',
-    label: type === 'customer' ? 'Total Sales' : 'Total Purchase',
-    align: 'right',
-    render: (row) => {
-      const val = type === 'customer'
-        ? Math.abs(row.totalDebit || 0)
-        : Math.abs(row.totalCredit || 0);
-      return <span className={`${styles.badge} ${styles.badgeBlue}`}>{formatCurrency(val)}</span>;
-    },
-  },
-  {
-    key: 'totalPaid',
-    label: 'Total Paid',
-    align: 'right',
-    render: (row) => {
-      const val = type === 'customer'
-        ? Math.abs(row.totalCredit || 0)
-        : Math.abs(row.totalDebit || 0);
-      return <span className={`${styles.badge} ${styles.badgeGreen}`}>{formatCurrency(val)}</span>;
-    },
-  },
-  {
-    key: 'outstanding',
-    label: 'Total Due',
-    align: 'right',
-    render: (row) => {
-      const val = row.outstandingBalance || 0;
-      const isDue = val > 0;
-      return (
-        <span className={`${styles.badge} ${isDue ? styles.badgeRed : styles.badgeGreen}`}>
-          {formatCurrency(val)}
-        </span>
-      );
-    },
-  },
-  {
-    key: 'lastTransaction',
-    label: 'Last Transaction',
-    render: (row) => formatLastTx(row),
-  },
-  {
-    key: 'actions',
-    label: 'Actions',
-    align: 'center',
-    render: (row) => (
-      <ActionButtons
-        onViewLedger={() => onViewLedger(row)}
-        menuItems={[
-          { label: 'Edit',   icon: '✏️', onClick: () => onEdit(row) },
-          { divider: true },
-          { label: 'Delete', icon: '🗑️', onClick: () => onDeleteRequest(row), danger: true },
-        ]}
-      />
-    ),
-  },
-];
+/* ─── TABS (add new entity types here to extend the tab bar) ─── */
+const TABS = Object.values(ENTITY_CONFIG).map((c) => ({
+  id: c.tabId,
+  label: c.label,
+}));
 
 /* ─── MAIN COMPONENT ─── */
 export default function MastersPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // All grid context lives in Zustand — persists across page navigation
   const {
     activeTab, setActiveTab,
-    loading, filteredData,
     searchQuery, setSearchQuery,
-    timePeriod, setTimePeriod,
-    summaryStats, growthData,
-    isModalOpen, editId, formValues, saving,
-    openCreateModal, openEditModal, closeModal,
-    handleFieldChange, handleSave, handleDelete,
-  } = useMasters();
+    currentPage, setCurrentPage,
+    isModalOpen, editId, formValues,
+    openCreateModal, openEditModal, closeModal, handleFieldChange,
+  } = useMastersStore();
 
-  // Delete confirmation modal state
-  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
+  // Sync active tab when returning from AddPage / EditPage
+  useEffect(() => {
+    const returnedTab = location.state?.activeTab;
+    if (returnedTab) setActiveTab(returnedTab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
-  const isCustomer = activeTab === 'customer';
-  const entityLabel = isCustomer ? 'Customer' : 'Supplier';
+  // Debounced search — derived, not stored
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
-  /* handlers */
+  const LIMIT = 10;
+
+  // Resolve entity config from current active tab
+  const config = getConfigByTab(activeTab);
+  const recordType = config.apiKey;
+  const entityLabel = config.label;
+  const summaryLabels = config.summary;
+
+  // Data & mutations — fully generic, driven by recordType
+  const { data, loading, summary, summaryLoading, pagination } = usePartyQuery({
+    recordType,
+    page: currentPage,
+    limit: LIMIT,
+    search: debouncedSearch,
+  });
+
+  const { addParty, updateParty, deleteParty, isSaving } = usePartyMutations();
+
+  // Handlers
+  const handleSave = useCallback(async () => {
+    if (editId) {
+      await updateParty(editId, formValues);
+    } else {
+      await addParty({ ...formValues, recordType });
+    }
+  }, [editId, formValues, recordType, addParty, updateParty]);
+
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
   const handleViewLedger = useCallback((row) => {
-    const entityType = isCustomer ? 'customer' : 'supplier';
-    navigate(`/ledger/${entityType}/${row.id || row._id}`);
-  }, [isCustomer, navigate]);
+    navigate(`/ledger/${activeTab}/${row._id || row.id}`);
+  }, [activeTab, navigate]);
 
   const handleDeleteRequest = useCallback((row) => {
-    setDeleteTarget({ id: row.id || row._id, name: row.name });
+    setDeleteTarget({ id: row._id || row.id, name: row.name });
   }, []);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!deleteTarget) return;
-    await handleDelete(deleteTarget.id);
+    await deleteParty(deleteTarget.id);
     setDeleteTarget(null);
-  }, [deleteTarget, handleDelete]);
+  }, [deleteTarget, deleteParty]);
 
-  const columns = getColumns(activeTab, openEditModal, handleViewLedger, handleDeleteRequest);
-  const fields  = isCustomer ? CUSTOMER_FIELDS : SUPPLIER_FIELDS;
+  // Build columns from config — entityColumns.jsx handles all JSX renderers
+  const columns = getEntityColumns(recordType, {
+    styles,
+    ActionButtons,
+    onEdit: (row) => openEditModal(row, recordType),
+    onViewLedger: handleViewLedger,
+    onDeleteRequest: handleDeleteRequest,
+  });
 
   return (
     <Page title="" subtitle="" loading={false} actions={null}>
       <Toaster position="top-right" />
 
-      {/* ─── PAGE HEADER & FILTERS ─── */}
+      {/* ─── PAGE HEADER & TAB FILTERS ─── */}
       <PageHeader
-        title={entityLabel + 's'}
+        title={config.pluralLabel}
         subtitle={`Manage ${entityLabel.toLowerCase()} accounts and payments`}
         right={
           <HeaderFilters
-            tabs={[
-              { id: 'customer', label: 'Customer' },
-              { id: 'supplier', label: 'Supplier' },
-            ]}
+            tabs={TABS}
             activeTab={activeTab}
             onTabChange={setActiveTab}
-            activeTime={timePeriod}
-            onTimeChange={setTimePeriod}
           />
         }
       />
 
-      {/* ─── SUMMARY CARDS ─── */}
+      {/* ─── SUMMARY CARDS (driven by config labels) ─── */}
       <div className={styles.summaryScroll}>
         <section className={styles.summaryGrid}>
           <SummaryCard
-            label={isCustomer ? 'Total Customers' : 'Total Suppliers'}
-            value={loading ? '…' : summaryStats.totalCount}
-            growth={growthData.countGrowth.value}
-            growthLabel={growthData.countGrowth.label}
+            label={summaryLabels.total}
+            value={summaryLoading ? '…' : summary.totalCount}
           />
           <SummaryCard
-            label={isCustomer ? 'Total Sales' : 'Total Purchase'}
-            value={loading ? '…' : `₹${summaryStats.totalSalesOrPurchase.toLocaleString('en-IN')}`}
+            label={summaryLabels.sales}
+            value={summaryLoading ? '…' : `₹${(summary.totalSalesOrPurchase || 0).toLocaleString('en-IN')}`}
             color="blue"
-            growth={growthData.salesGrowth.value}
-            growthLabel={growthData.salesGrowth.label}
           />
           <SummaryCard
-            label={isCustomer ? 'Total Received' : 'Total Paid'}
-            value={loading ? '…' : `₹${summaryStats.totalPayment.toLocaleString('en-IN')}`}
+            label={summaryLabels.payment}
+            value={summaryLoading ? '…' : `₹${(summary.totalPayment || 0).toLocaleString('en-IN')}`}
             color="green"
-            growth={growthData.paymentGrowth.value}
-            growthLabel={growthData.paymentGrowth.label}
           />
           <SummaryCard
-            label="Total Outstanding"
-            value={loading ? '…' : `₹${Math.abs(summaryStats.totalOutstanding).toLocaleString('en-IN')}`}
-            color={summaryStats.totalOutstanding <= 0 ? 'green' : 'red'}
-            growth={growthData.outstandingGrowth.value}
-            growthLabel={growthData.outstandingGrowth.label}
+            label={summaryLabels.outstanding}
+            value={summaryLoading ? '…' : `₹${Math.abs(summary.totalOutstanding || 0).toLocaleString('en-IN')}`}
+            color={(summary.totalOutstanding || 0) <= 0 ? 'green' : 'red'}
           />
         </section>
       </div>
 
-      {/* ─── SEARCH + ACTION BAR ─── */}
+      {/* ─── SEARCH + ADD BUTTON ─── */}
       <div className={styles.searchActionBar}>
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           placeholder={`Search ${entityLabel.toLowerCase()} name or phone…`}
         />
-        <Button onClick={openCreateModal} icon="＋">
+        <Button
+          onClick={() => navigate('/masters/add', { state: { defaultTab: recordType } })}
+          icon="＋"
+        >
           Add {entityLabel}
         </Button>
       </div>
 
-      {/* ─── CUSTOMER / SUPPLIER TABLE ─── */}
+      {/* ─── DATA TABLE (columns from config) ─── */}
       <DataTable
         columns={columns}
-        data={filteredData}
+        data={data}
         loading={loading}
         emptyTitle={searchQuery ? 'No matches found' : `No ${entityLabel.toLowerCase()}s yet`}
         emptyDescription={
@@ -262,19 +177,35 @@ export default function MastersPage() {
         }
       />
 
-      {/* ─── CREATE / EDIT MODAL ─── */}
+      {/* ─── PAGINATION ─── */}
+      {!loading && pagination?.pageCount > 1 && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.pageCount}
+          onPageChange={setCurrentPage}
+          onNext={() => setCurrentPage(Math.min(pagination.pageCount, currentPage + 1))}
+          onPrev={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          hasNext={pagination.hasNext}
+          hasPrev={pagination.hasPrev}
+          startIndex={(pagination.currentPage - 1) * LIMIT}
+          endIndex={Math.min(pagination.currentPage * LIMIT, pagination.itemCount)}
+          totalItems={pagination.itemCount}
+        />
+      )}
+
+      {/* ─── CREATE / EDIT MODAL (fields from config) ─── */}
       <CreateEditModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title={`${editId ? 'Edit' : 'Create'} ${entityLabel}`}
-        fields={fields}
+        title={`${editId ? 'Edit' : 'Add'} ${entityLabel}`}
+        fields={config.fields}
         values={formValues}
         onChange={handleFieldChange}
         onSubmit={handleSave}
-        saving={saving}
+        saving={isSaving}
       />
 
-      {/* ─── DELETE CONFIRMATION MODAL ─── */}
+      {/* ─── DELETE CONFIRMATION ─── */}
       <ConfirmDeleteModal
         isOpen={!!deleteTarget}
         onCancel={() => setDeleteTarget(null)}

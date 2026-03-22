@@ -7,10 +7,10 @@ import {
   SummaryCard,
   TimeFilter,
 } from '../../components';
-import SalesPaymentChart from '../../components/ui/SalesPaymentChart/SalesPaymentChart';
-import CustomerRetentionChart from '../../components/ui/CustomerRetentionChart/CustomerRetentionChart';
-import AccountsAgingChart from '../../components/ui/AccountsAgingChart/AccountsAgingChart';
-import RecentTransactionsTable from '../../components/ui/RecentTransactionsTable/RecentTransactionsTable';
+import SalesPaymentChart from '../../features/dashboard/components/SalesPaymentChart/SalesPaymentChart';
+import CustomerRetentionChart from '../../features/dashboard/components/CustomerRetentionChart/CustomerRetentionChart';
+import AccountsAgingChart from '../../features/dashboard/components/AccountsAgingChart/AccountsAgingChart';
+import RecentTransactionsTable from '../../features/dashboard/components/RecentTransactionsTable/RecentTransactionsTable';
 import DrilldownModal, { DrilldownTable } from '../../components/ui/DrilldownModal/DrilldownModal';
 
 const TIME_OPTIONS = [

@@ -21,17 +21,42 @@
   padding: 0 20px;
 }
 
-.tabBtn.active {
+.active {
   background: var(--bg-primary);
   color: var(--text-primary);
   box-shadow: 0 2px 4px var(--shadow);
+}
+
+/* --- Dynamic Width --- */
+.fullWidth {
+  width: 100% !important;
+}
+
+.fullWidthBtn {
+  flex: 1 !important;
+}
+
+/* --- Dynamic Sizes --- */
+.size-sm .tabBtn {
+  height: 30px;
+  padding: 0 14px;
+  font-size: 0.82rem;
+}
+
+.size-lg .tabBtn {
+  height: 44px;
+  padding: 0 28px;
+  font-size: 1.05rem;
 }
 
 @media (max-width: 768px) {
   .tabs {
     padding: 3px;
   }
-  .tabBtn {
+  .tabBtn,
+  .size-sm .tabBtn,
+  .size-md .tabBtn,
+  .size-lg .tabBtn {
     height: 32px;
     padding: 0 12px;
     font-size: 0.8rem;

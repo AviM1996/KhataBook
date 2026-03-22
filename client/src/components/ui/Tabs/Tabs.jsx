@@ -1,19 +1,14 @@
 import React from 'react';
 import styles from './Tabs.module.css';
 
-/**
- * Reusable Segmented Tabs Component
- * @param {Array<{id: string, label: string}>} tabs - Configuration of Tab options
- * @param {string} activeTab - The currently selected tab ID
- * @param {function} onChange - Callback triggered when a tab is clicked, passed the tab ID
- */
-export default function Tabs({ tabs, activeTab, onChange }) {
+
+export default function Tabs({ tabs, activeTab, onChange, fullWidth = false, size = 'md' }) {
   return (
-    <div className={styles.tabs}>
+    <div className={`${styles.tabs} ${fullWidth ? styles.fullWidth : ''} ${styles[`size-${size}`] || ''}`}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
-          className={`${styles.tabBtn} ${activeTab === tab.id ? styles.active : ''}`}
+          className={`${styles.tabBtn} ${fullWidth ? styles.fullWidthBtn : ''} ${activeTab === tab.id ? styles.active : ''}`}
           onClick={() => onChange(tab.id)}
         >
           {tab.label}

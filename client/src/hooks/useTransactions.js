@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getCustomerTransactions } from "../api/transaction";
+import { getPartyTransactions } from "../api/transaction";
 
 export function useTransactions(customerId, recentLimit = 5) {
   const [transactions, setTransactions] = useState([]);
@@ -10,9 +10,10 @@ export function useTransactions(customerId, recentLimit = 5) {
   const loadTxns = async () => {
     setLoading(true);
     try {
-      const data = await getCustomerTransactions(customerId);
-      setTransactions(data || []);
-      setRecent((data || []).slice(0, recentLimit));
+      const data = await getPartyTransactions(customerId) || [];
+      const flatTxs = Array.isArray(data) ? data.flatMap(g => g.transactions || g) : [];
+      setTransactions(flatTxs);
+      setRecent(flatTxs.slice(0, recentLimit));
     } catch (err) {
       setError(err.message);
     } finally {

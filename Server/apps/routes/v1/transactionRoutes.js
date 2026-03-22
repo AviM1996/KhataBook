@@ -7,13 +7,12 @@ const {
   deleteTransaction
 } = require('../../controllers/transactionController');
 
-// Define API routes for transactions
-router.route('/')
-  .get(getTransactions)
-  .post(createTransaction);
+const transectionController = require('../../controllers/transactionController');
 
-router.route('/:id')
-  .put(updateTransaction)
-  .delete(deleteTransaction);
+router.get('/all',transectionController.getTransactions)
+router.post('/add',transectionController.createTransaction)
+
+router.put('/update/:id', transectionController.updateTransaction)
+router.delete('/delete/:id', transectionController.deleteTransaction)
 
 module.exports = router;

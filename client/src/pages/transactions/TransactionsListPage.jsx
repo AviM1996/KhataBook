@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTransactions } from "../../hooks/useTransactions";
-import { useCustomers } from "../../hooks/useCustomers";
+import { usePartyQuery } from "../../hooks/usePartyQuery";
 import { usePagination } from "../../hooks/usePagination";
 import { Page, Loader, Pagination } from "../../components";
 import styles from "./TransactionsListPage.module.css";
@@ -12,7 +12,7 @@ export default function TransactionsListPage() {
   const filterType = searchParams.get("type") || "all"; // CREDIT, DEBIT, or all
   const filterDate = searchParams.get("date") || "all"; // today, all
   const { transactions, loading } = useTransactions("ALL");
-  const { customers, loading: customersLoading } = useCustomers();
+  const { data: customers, loading: customersLoading } = usePartyQuery({ recordType: 'CUSTOMER', limit: 1000 });
 
   // Get customer name helper
   const getCustomerName = (customerId) => {

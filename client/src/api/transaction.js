@@ -1,19 +1,21 @@
 import client from './client';
 
 export async function createTransaction(payload) {
-  return client('transactions', { body: payload });
+  return client('transactions/add', { body: payload });
 }
 
-export async function getCustomerTransactions(customerId) {
-  return client(`transactions?customerId=${customerId}`);
+export async function getPartyTransactions(partyId, recordType, options = {}) {
+  const params = new URLSearchParams({ partyId });
+  if (recordType) params.append('recordType', recordType);
+  return client(`transactions/all?${params.toString()}`, { ...options });
 }
 
 export async function updateTransaction(id, payload) {
-  return client(`transactions/${id}`, { method: 'PUT', body: payload });
+  return client(`transactions/update/${id}`, { method: 'PUT', body: payload });
 }
 
 export async function deleteTransaction(id) {
-  return client(`transactions/${id}`, { method: 'DELETE' });
+  return client(`transactions/delete/${id}`, { method: 'DELETE' });
 }
 
 export async function getCustomerBalance(customerId) {

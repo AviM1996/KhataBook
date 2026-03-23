@@ -158,3 +158,33 @@
     min-width: 130px;
   }
 }
+
+/* ─── Dashboard Button Styles ─── */
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dashboardBtn {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px !important;
+  font-size: 0.9rem !important;
+  height: 38px;
+}
+
+.dashboardBtn:hover {
+  border-color: var(--accent-blue) !important;
+  color: var(--accent-blue) !important;
+  background: var(--bg-tertiary) !important;
+}
+
+.dashboardIcon {
+  font-size: 1.1rem;
+}
+

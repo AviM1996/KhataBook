@@ -1,89 +1,23 @@
-import React, { useState, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styles from './dashboard.module.css';
-import { useDashboardStats } from '../../hooks/useDashboardStats';
-import {
-  Page,
-  SummaryCard,
-  TimeFilter,
-} from '../../components';
-import SalesPaymentChart from '../../features/dashboard/components/SalesPaymentChart/SalesPaymentChart';
-import CustomerRetentionChart from '../../features/dashboard/components/CustomerRetentionChart/CustomerRetentionChart';
-import AccountsAgingChart from '../../features/dashboard/components/AccountsAgingChart/AccountsAgingChart';
-import RecentTransactionsTable from '../../features/dashboard/components/RecentTransactionsTable/RecentTransactionsTable';
-import DrilldownModal, { DrilldownTable } from '../../components/ui/DrilldownModal/DrilldownModal';
+import React, { useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import styles from "./dashboard.module.css";
+import {useDashboardStats} from "../../hooks/useDashboardStats.js";
+import { Page, SummaryCard, TimeFilter } from "../../components";
+import SalesPaymentChart from "../../features/dashboard/components/SalesPaymentChart/SalesPaymentChart";
+import CustomerRetentionChart from "../../features/dashboard/components/CustomerRetentionChart/CustomerRetentionChart";
+import AccountsAgingChart from "../../features/dashboard/components/AccountsAgingChart/AccountsAgingChart";
+
+import DrilldownModal, {
+  DrilldownTable,
+} from "../../components/ui/DrilldownModal/DrilldownModal";
+import { getParties } from "../../api/party";
 
 const TIME_OPTIONS = [
-  { id: 'today', label: 'Today' },
-  { id: 'weekly', label: 'Weekly' },
-  { id: 'monthly', label: 'Monthly' },
-  { id: 'yearly', label: 'Yearly' },
+  { id: "today", label: "Today" },
+  { id: "weekly", label: "Weekly" },
+  { id: "monthly", label: "Monthly" },
+  { id: "yearly", label: "Yearly" },
 ];
-
-// ─── Mock drill-down data generators ───
-const generateSalesDrilldown = (point) => ({
-  columns: ['Party', 'Type', 'Amount', 'Time'],
-  rows: [
-    [point.label, 'Sale', `₹${(point.sales * 0.35).toLocaleString('en-IN')}`, '10:30 AM'],
-    ['Sharma Electronics', 'Sale', `₹${(point.sales * 0.25).toLocaleString('en-IN')}`, '11:15 AM'],
-    ['ABC Traders', 'Payment', `₹${(point.payment * 0.5).toLocaleString('en-IN')}`, '12:00 PM'],
-    ['Gupta & Sons', 'Sale', `₹${(point.sales * 0.2).toLocaleString('en-IN')}`, '2:30 PM'],
-    ['Patel Distributors', 'Payment', `₹${(point.payment * 0.3).toLocaleString('en-IN')}`, '3:45 PM'],
-    ['Kumar Store', 'Sale', `₹${(point.sales * 0.2).toLocaleString('en-IN')}`, '5:00 PM'],
-  ],
-});
-
-const generateRetentionDrilldown = (segment) => {
-  if (segment.name.includes('Returning')) {
-    return {
-      columns: ['Customer', 'Total Orders', 'Last Purchase', 'Total Spent'],
-      rows: [
-        ['Avishek Maity', '12', '15 Mar 2026', '₹45,200'],
-        ['Sharma Electronics', '8', '14 Mar 2026', '₹1,28,500'],
-        ['Gupta & Sons', '15', '13 Mar 2026', '₹78,300'],
-        ['Patel Distributors', '6', '12 Mar 2026', '₹2,15,000'],
-        ['Kumar Store', '9', '11 Mar 2026', '₹56,800'],
-        ['Singh Traders', '4', '10 Mar 2026', '₹32,100'],
-      ],
-    };
-  }
-  return {
-    columns: ['Customer', 'First Purchase', 'Amount', 'Source'],
-    rows: [
-      ['Reddy Supplies', '14 Mar 2026', '₹8,500', 'Walk-in'],
-      ['Jain Brothers', '13 Mar 2026', '₹12,000', 'Referral'],
-      ['Metro Wholesale', '12 Mar 2026', '₹22,000', 'Online'],
-      ['Dinesh Mart', '11 Mar 2026', '₹5,400', 'Walk-in'],
-    ],
-  };
-};
-
-const generateAgingDrilldown = (entry, type) => ({
-  columns: ['Customer', 'Invoice #', 'Days Outstanding', 'Amount Due'],
-  rows: entry.bucket.includes('0–30')
-    ? [
-      ['Avishek Maity', 'INV-1042', '5', '₹5,200'],
-      ['Sharma Electronics', 'INV-1038', '12', '₹4,800'],
-      ['Kumar Store', 'INV-1035', '22', '₹3,500'],
-      ['Gupta & Sons', 'INV-1030', '28', '₹5,000'],
-    ]
-    : entry.bucket.includes('31–60')
-      ? [
-        ['Patel Distributors', 'INV-1020', '35', '₹4,200'],
-        ['Singh Traders', 'INV-1015', '42', '₹3,800'],
-        ['Metro Wholesale', 'INV-1010', '55', '₹4,000'],
-      ]
-      : entry.bucket.includes('61–90')
-        ? [
-          ['Reddy Supplies', 'INV-0998', '68', '₹4,500'],
-          ['Jain Brothers', 'INV-0985', '82', '₹3,700'],
-        ]
-        : [
-          ['Dinesh Mart', 'INV-0950', '105', '₹3,200'],
-          ['Lakshmi Stores', 'INV-0920', '128', '₹4,500'],
-          ['Old Town Traders', 'INV-0890', '145', '₹2,350'],
-        ],
-});
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -95,140 +29,203 @@ export default function Dashboard() {
     customerRetention,
     receivableAging,
     payableAging,
-    recentTransactions,
+    loading,
   } = useDashboardStats();
 
   // ─── Drilldown Modal State ───
-  const [drilldown, setDrilldown] = useState({ open: false, title: '', subtitle: '', content: null });
-  const closeDrilldown = useCallback(() => setDrilldown((d) => ({ ...d, open: false })), []);
+  const [drilldown, setDrilldown] = useState({
+    open: false,
+    title: "",
+    subtitle: "",
+    content: null,
+  });
+  const closeDrilldown = useCallback(
+    () => setDrilldown((d) => ({ ...d, open: false })),
+    [],
+  );
 
   // ─── Refs for scroll-to-chart ───
   const salesChartRef = useRef(null);
   const agingChartRef = useRef(null);
 
-  // ─── Card click handlers ───
-  const cardActions = [
-    () => navigate('/masters?tab=customers'),                     // Total Customers
-    () => navigate('/masters?tab=suppliers'),                      // Total Suppliers
-    () => navigate('/masters?tab=customers&filter=overdue90'),     // 90+ Days Due
-    () => {                                                        // Sales
-      salesChartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      navigate('/transactions?type=DEBIT');
-    },
-    () => navigate('/transactions?type=CREDIT'),                   // Payments Received
-    () => {                                                        // Outstanding
-      agingChartRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    },
-  ];
+  // ─── Unified Card Click Handler ───
+  const handleCardClick = (index) => {
+    console.log("Card clicked index:", index);
 
-  // ─── Chart click handlers ───
-  const handleSalesPointClick = (point) => {
-    const data = generateSalesDrilldown(point);
-    setDrilldown({
-      open: true,
-      title: `Transactions — ${point.label}`,
-      subtitle: `Sales: ₹${point.sales.toLocaleString('en-IN')}  ·  Payments: ₹${point.payment.toLocaleString('en-IN')}`,
-      content: <DrilldownTable columns={data.columns} rows={data.rows} />,
-    });
+    switch (index) {
+      case 0: // Total Customers
+        navigate("/masters?tab=customers");
+        break;
+      case 1: // Total Suppliers
+        navigate("/masters?tab=suppliers");
+        break;
+
+      case 2: // 90+ Days Due
+        setDrilldown({
+          open: true,
+          title: "High-Risk Receivables (Suppliers)",
+          subtitle: "Fetching recent supplier data...",
+          content: (
+            <div
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                color: "var(--text-tertiary)",
+              }}
+            >
+              Loading real data...
+            </div>
+          ),
+        });
+
+        // ─── Fetch real data from API ───
+        getParties({ recordType: "SUPPLIER", page: 1, limit: 10 })
+          .then((res) => {
+            const raw = res.itemsList || [];
+            setDrilldown((prev) => ({
+              ...prev,
+              subtitle: "Accounts with no payment for over 90 days",
+              content: (
+                <DrilldownTable
+                  columns={["Supplier Name", "Phone", "Address", "Status"]}
+                  rows={raw.map((p) => [
+                    p.name,
+                    p.phone,
+                    p.address || "N/A",
+                    p.isActive ? "Active" : "Inactive",
+                  ])}
+                />
+              ),
+            }));
+          })
+          .catch((err) => {
+            console.error("Drilldown fetch error:", err);
+            setDrilldown((prev) => ({
+              ...prev,
+              subtitle: "Failed to load data",
+              content: (
+                <div style={{ color: "var(--accent-red)", padding: "20px" }}>
+                  Error fetching data. Please try again later.
+                </div>
+              ),
+            }));
+          });
+        break;
+
+      case 3: // Sales
+        salesChartRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        setTimeout(() => navigate("/transactions?type=DEBIT"), 800);
+        break;
+      case 4: // Payments Received
+        navigate("/transactions?type=CREDIT");
+        break;
+      case 5: // Outstanding
+        agingChartRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+        break;
+      default:
+        console.warn("Unhandled card index:", index);
+    }
   };
 
-  const handleRetentionClick = (segment) => {
-    const data = generateRetentionDrilldown(segment);
+  // ─── Retention Drilldown Handler ───
+  const handleRetentionDrilldown = (segment) => {
+    const isNew = segment.name.includes("New");
     setDrilldown({
       open: true,
-      title: segment.name,
-      subtitle: `${segment.value}% of total customers`,
-      content: <DrilldownTable columns={data.columns} rows={data.rows} />,
-    });
-  };
-
-  const handleAgingClick = (entry, type) => {
-    const data = generateAgingDrilldown(entry, type);
-    setDrilldown({
-      open: true,
-      title: `${type} — ${entry.bucket}`,
-      subtitle: `Outstanding: ₹${entry.amount.toLocaleString('en-IN')}`,
-      content: <DrilldownTable columns={data.columns} rows={data.rows} />,
-    });
-  };
-
-  const handleTransactionClick = (tx) => {
-    setDrilldown({
-      open: true,
-      title: `${tx.type} — ${tx.party}`,
-      subtitle: tx.date,
+      title: `${segment.name} Segment`,
+      subtitle: `${segment.value}% of your base this ${timeFilter}`,
       content: (
-        <div className={styles.txDetail}>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Party</span>
-            <span className={styles.txDetailValue}>{tx.party}</span>
-          </div>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Transaction Type</span>
-            <span className={`${styles.txDetailBadge} ${styles[`txBadge${tx.type}`]}`}>{tx.type}</span>
-          </div>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Amount</span>
-            <span className={styles.txDetailAmount}>₹{tx.amount.toLocaleString('en-IN')}</span>
-          </div>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Date</span>
-            <span className={styles.txDetailValue}>{tx.date}</span>
-          </div>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Invoice</span>
-            <span className={styles.txDetailValue}>INV-{1000 + Math.floor(Math.random() * 100)}</span>
-          </div>
-          <div className={styles.txDetailRow}>
-            <span className={styles.txDetailLabel}>Status</span>
-            <span className={styles.txDetailStatus}>Completed</span>
-          </div>
-          <button
-            className={styles.txDetailBtn}
-            onClick={() => navigate('/ledger')}
-          >
-            Open in Ledger →
-          </button>
-        </div>
+        <DrilldownTable
+          columns={["Customer", "Join Date", "Total Sales", "Visit Frequency"]}
+          rows={
+            isNew
+              ? [
+                  ["Alice Cooper", "18 Mar 2024", "₹2,500", "1x"],
+                  ["Bob Marley", "15 Mar 2024", "₹1,200", "1x"],
+                ]
+              : [
+                  ["Ravi Kumar", "Jan 2023", "₹45,000", "4x/mo"],
+                  ["Deepak S.", "Jun 2023", "₹28,200", "2x/mo"],
+                ]
+          }
+        />
+      ),
+    });
+  };
+
+  // ─── Aging Drilldown Handler ───
+  const handleAgingDrilldown = (bucketData, type) => {
+    setDrilldown({
+      open: true,
+      title: `${type} Outstandings: ${bucketData.bucket}`,
+      subtitle: `Total for period: ₹${bucketData.amount.toLocaleString("en-IN")}`,
+      content: (
+        <DrilldownTable
+          columns={["Entity Name", "Due Amount", "Age (Days)", "Priority"]}
+          rows={[
+            [
+              `Example ${type} 1`,
+              `₹${Math.round(bucketData.amount * 0.6).toLocaleString("en-IN")}`,
+              "22",
+              "High",
+            ],
+            [
+              `Example ${type} 2`,
+              `₹${Math.round(bucketData.amount * 0.4).toLocaleString("en-IN")}`,
+              "15",
+              "Normal",
+            ],
+          ]}
+        />
       ),
     });
   };
 
   return (
-    <div>
-      <div className={styles.headerRow}>
-        <div>
-          <h1 className={styles.pageTitle}>Dashboard</h1>
-          <p className={styles.subtitle}>Your business at a glance</p>
-        </div>
-
+    <Page
+      title="Dashboard"
+      subtitle="Your business at a glance"
+      loading={loading || !summaryCards}
+      actions={
         <TimeFilter
           options={TIME_OPTIONS}
           active={timeFilter}
           onChange={setTimeFilter}
         />
-      </div>
+      }
+    >
       <div className={styles.cardsScroll}>
         <div className={styles.cardsGrid}>
-          {summaryCards.map((card, i) => (
+          {summaryCards?.map((card, i) => (
             <SummaryCard
-              key={i}
+              key={card.label || i}
               label={card.label}
               value={card.value}
               color={card.color}
               growth={card.growth}
               growthLabel={card.growthLabel}
-              onClick={cardActions[i]}
+              icon={card.icon}
+              onClick={() => handleCardClick(i)}
             />
           ))}
         </div>
       </div>
+
       <div className={styles.chartsRow} ref={salesChartRef}>
         <div className={styles.chartCard}>
-          <SalesPaymentChart data={salesPayment} onPointClick={handleSalesPointClick} />
+          <SalesPaymentChart data={salesPayment} />
         </div>
         <div className={`${styles.chartCard} ${styles.chartCardSmall}`}>
-          <CustomerRetentionChart data={customerRetention} onSegmentClick={handleRetentionClick} />
+          <CustomerRetentionChart
+            data={customerRetention}
+            onSegmentClick={handleRetentionDrilldown}
+          />
         </div>
       </div>
 
@@ -237,19 +234,16 @@ export default function Dashboard() {
           <AccountsAgingChart
             title="Customer Due"
             data={receivableAging}
-            onBarClick={(entry) => handleAgingClick(entry, 'Receivable')}
+            onBarClick={(d) => handleAgingDrilldown(d, "Customer")}
           />
         </div>
         <div className={styles.chartCard}>
           <AccountsAgingChart
             title="Supplier Due"
             data={payableAging}
-            onBarClick={(entry) => handleAgingClick(entry, 'Payable')}
+            onBarClick={(d) => handleAgingDrilldown(d, "Supplier")}
           />
         </div>
-      </div>
-      <div className={styles.tableCard}>
-        <RecentTransactionsTable data={recentTransactions} onRowClick={handleTransactionClick} />
       </div>
 
       <DrilldownModal
@@ -260,7 +254,6 @@ export default function Dashboard() {
       >
         {drilldown.content}
       </DrilldownModal>
-    </div>
-
+    </Page>
   );
 }

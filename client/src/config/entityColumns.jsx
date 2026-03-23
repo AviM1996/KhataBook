@@ -4,6 +4,7 @@
  * helpers = { styles, ActionButtons, onEdit, onViewLedger, onDeleteRequest }
  */
 import React from 'react';
+import { MdEdit, MdDelete } from 'react-icons/md';
 import { formatCurrency } from './entityConfig';
 
 const formatLastTxn = (row) => {
@@ -84,9 +85,9 @@ export function getEntityColumns(entityType, { styles, ActionButtons, onEdit, on
         <ActionButtons
           onViewLedger={() => onViewLedger(row)}
           menuItems={[
-            { label: 'Edit',   icon: '✏️', onClick: () => onEdit(row) },
+            { label: 'Edit',   icon: <MdEdit />, onClick: () => onEdit(row) },
             { divider: true },
-            { label: 'Delete', icon: '🗑️', onClick: () => onDeleteRequest(row), danger: true },
+            { label: 'Delete', icon: <MdDelete />, onClick: () => onDeleteRequest(row), danger: true },
           ]}
         />
       ),

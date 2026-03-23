@@ -1,4 +1,5 @@
 import React from 'react';
+import { MdDelete } from 'react-icons/md';
 import styles from './ConfirmDeleteModal.module.css';
 
 /**
@@ -24,7 +25,7 @@ export default function ConfirmDeleteModal({
     <div className={styles.overlay} onClick={onCancel}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.iconWrap}>
-          <span className={styles.trashIcon}>🗑️</span>
+          <span className={styles.trashIcon}><MdDelete /></span>
         </div>
 
         <h2 className={styles.title}>{title}</h2>

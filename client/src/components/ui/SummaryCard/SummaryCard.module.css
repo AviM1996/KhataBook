@@ -19,16 +19,35 @@
 /* =========================================
    2. TYPOGRAPHY & TEXT Elements
 ========================================= */
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .card p {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
   text-transform: uppercase;
   font-weight: 600;
   letter-spacing: 0.05em;
-  transition: color 0.3s ease;
-  margin-bottom: 8px;
 }
+
+.icon {
+  background: var(--bg-tertiary);
+  color: var(--accent-blue);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
 
 .card h3 {
   margin: 0;

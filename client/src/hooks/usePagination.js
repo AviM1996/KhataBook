@@ -1,11 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 
-/**
- * Custom hook for pagination and infinite scrolling
- * @param {Array} items - Array of items to paginate
- * @param {number} itemsPerPage - Number of items per page
- * @returns {Object} Pagination state and functions
- */
 export function usePagination(items = [], itemsPerPage = 10) {
   const [currentPage, setCurrentPage] = useState(1);
   const observerTarget = useRef(null); // Attach this to an invisible div at the bottom

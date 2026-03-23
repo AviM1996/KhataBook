@@ -19,6 +19,7 @@ export default function SummaryCard({
   onClick,
   growth,
   growthLabel = '',
+  icon,
 }) {
   const isClickable = typeof onClick === 'function';
   const hasGrowth = typeof growth === 'number' && !isNaN(growth);
@@ -30,7 +31,10 @@ export default function SummaryCard({
       onClick={onClick}
       style={{ cursor: isClickable ? 'pointer' : 'default' }}
     >
-      <p>{label}</p>
+      <div className={styles.cardHeader}>
+        <p>{label}</p>
+        {icon && <span className={styles.icon}>{icon}</span>}
+      </div>
       {isLoading ? (
         <span className={styles.loading}>Loading...</span>
       ) : (

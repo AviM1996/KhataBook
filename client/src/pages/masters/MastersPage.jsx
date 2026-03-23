@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MdDashboard, MdAdd, MdPeople, MdTrendingUp, MdAccountBalanceWallet, MdPendingActions } from 'react-icons/md';
 import { Toaster } from 'react-hot-toast';
 import { useMastersStore } from '../../store/useMastersStore';
 import { usePartyQuery } from '../../hooks/usePartyQuery';
@@ -7,7 +8,6 @@ import { usePartyMutations } from '../../hooks/usePartyMutations';
 import { ENTITY_CONFIG, getConfigByTab } from '../../config/entityConfig';
 import { getEntityColumns } from '../../config/entityColumns';
 import {
-  Page,
   Button,
   SearchBar,
   SummaryCard,
@@ -15,7 +15,7 @@ import {
   ActionButtons,
   CreateEditModal,
   ConfirmDeleteModal,
-  PageHeader,
+  Page,
   HeaderFilters,
   Pagination,
 } from '../../components';
@@ -41,12 +41,25 @@ export default function MastersPage() {
     openCreateModal, openEditModal, closeModal, handleFieldChange,
   } = useMastersStore();
 
-  // Sync active tab when returning from AddPage / EditPage
+  // Sync active tab from location state OR query parameter
   useEffect(() => {
+    // 1. Check location state (from navigate state)
     const returnedTab = location.state?.activeTab;
-    if (returnedTab) setActiveTab(returnedTab);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state]);
+    if (returnedTab) {
+      setActiveTab(returnedTab);
+      return;
+    }
+
+    // 2. Check query parameters (e.g. ?tab=suppliers)
+    const params = new URLSearchParams(location.search);
+    const queryTab = params.get('tab');
+    
+    // Validate if the tab exists in our config
+    if (queryTab && TABS.some(t => t.id === queryTab.toLowerCase())) {
+      setActiveTab(queryTab.toLowerCase());
+    }
+  }, [location.search, location.state, setActiveTab]);
+
 
   // Debounced search — derived, not stored
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
@@ -108,21 +121,28 @@ export default function MastersPage() {
   });
 
   return (
-    <Page title="" subtitle="" loading={false} actions={null}>
-      <Toaster position="top-right" />
-
-      {/* ─── PAGE HEADER & TAB FILTERS ─── */}
-      <PageHeader
-        title={config.pluralLabel}
-        subtitle={`Manage ${entityLabel.toLowerCase()} accounts and payments`}
-        right={
+    <Page
+      title={config.pluralLabel}
+      subtitle={`Manage ${entityLabel.toLowerCase()} accounts and payments`}
+      loading={loading}
+      actions={
+        <div className={styles.headerRight}>
+          <Button
+            className={styles.dashboardBtn}
+            onClick={() => navigate('/dashboard')}
+            icon={<MdDashboard />}
+          >
+            Dashboard
+          </Button>
           <HeaderFilters
             tabs={TABS}
             activeTab={activeTab}
             onTabChange={setActiveTab}
           />
-        }
-      />
+        </div>
+      }
+    >
+      <Toaster position="top-right" />
 
       {/* ─── SUMMARY CARDS (driven by config labels) ─── */}
       <div className={styles.summaryScroll}>
@@ -130,21 +150,25 @@ export default function MastersPage() {
           <SummaryCard
             label={summaryLabels.total}
             value={summaryLoading ? '…' : summary.totalCount}
+            icon={<MdPeople />}
           />
           <SummaryCard
             label={summaryLabels.sales}
             value={summaryLoading ? '…' : `₹${(summary.totalSalesOrPurchase || 0).toLocaleString('en-IN')}`}
             color="blue"
+            icon={<MdTrendingUp />}
           />
           <SummaryCard
             label={summaryLabels.payment}
             value={summaryLoading ? '…' : `₹${(summary.totalPayment || 0).toLocaleString('en-IN')}`}
             color="green"
+            icon={<MdAccountBalanceWallet />}
           />
           <SummaryCard
             label={summaryLabels.outstanding}
             value={summaryLoading ? '…' : `₹${Math.abs(summary.totalOutstanding || 0).toLocaleString('en-IN')}`}
             color={(summary.totalOutstanding || 0) <= 0 ? 'green' : 'red'}
+            icon={<MdPendingActions />}
           />
         </section>
       </div>
@@ -158,7 +182,7 @@ export default function MastersPage() {
         />
         <Button
           onClick={() => navigate('/masters/add', { state: { defaultTab: recordType } })}
-          icon="＋"
+          icon={<MdAdd />}
         >
           Add {entityLabel}
         </Button>

@@ -1,34 +1,44 @@
 const mongoose = require('mongoose');
-
 const Transaction = require('../models/Transaction');
 
 exports.getTransactions = async (req, res) => {
   try {
-    const { partyId } = req.query;
+    const { partyId, recordType } = req.query;
 
     if (!partyId) {
-      return res.status(400).json({
-        message: 'partyId is required'
+      return res.status(400).json({ message: 'partyId is required' });
+    }
+
+    const pipeline = [];
+
+    // ─── 1. Initial Match (Specific Party or ALL) ───
+    if (partyId === 'ALL') {
+      if (recordType) {
+        pipeline.push(
+          {
+            $lookup: {
+              from: 'parties',
+              localField: 'partyId',
+              foreignField: '_id',
+              as: 'party'
+            }
+          },
+          { $unwind: '$party' },
+          { $match: { 'party.recordType': recordType } }
+        );
+      }
+    } else {
+      if (!mongoose.Types.ObjectId.isValid(partyId)) {
+        return res.status(400).json({ message: 'Invalid partyId' });
+      }
+      pipeline.push({
+        $match: { partyId: new mongoose.Types.ObjectId(partyId) }
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(partyId)) {
-      return res.status(400).json({
-        message: 'Invalid partyId'
-      });
-    }
-
-    const pipeline = [
-      {
-        $match: {
-          partyId: new mongoose.Types.ObjectId(partyId)
-        }
-      },
-
-      {
-        $sort: { createdAt: -1 }
-      },
-
+    // ─── 2. Sorting & Projection ───
+    pipeline.push(
+      { $sort: { date: -1, createdAt: -1 } },
       {
         $project: {
           id: '$_id',
@@ -72,32 +82,28 @@ exports.getTransactions = async (req, res) => {
           }
         }
       },
+      // ─── 3. Grouping by Date ───
       {
         $group: {
-          _id: { 
-            $dateToString: { format: '%d %b %Y', date: '$date' } 
-          },
+          _id: { $dateToString: { format: '%d %b %Y', date: '$date' } },
           transactions: { $push: '$$ROOT' }
         }
       },
-      {
-        $sort: { '_id': -1 } // Sort the date groups
-      }
-    ];
+      { $sort: { '_id': -1 } }
+    );
 
     const groupedTransactions = await Transaction.aggregate(pipeline);
-
     res.status(200).json({ data: groupedTransactions });
 
   } catch (error) {
-    console.error(error);
+    console.error('getTransactions error:', error);
     res.status(500).json({ message: error.message });
   }
 };
 
 exports.createTransaction = async (req, res) => {
   try {
-    const { partyId, amount, type, description, paymentMethod,date } = req.body;
+    const { partyId, amount, type, description, paymentMethod, date } = req.body;
 
     if (!partyId || !type || amount === undefined) {
       return res.status(400).json({ message: 'Party ID, transaction type, and amount are required' });
@@ -109,7 +115,7 @@ exports.createTransaction = async (req, res) => {
       type,
       description: req.body.note || description,
       paymentMethod,
-      date: date || Date.now(),
+      date: date ? new Date(`${date.split('T')[0]}T${new Date().toTimeString().slice(0, 8)}`) : new Date(),
       createdBy: req.user ? req.user.id : null,
       updatedBy: req.user ? req.user.id : null
     });

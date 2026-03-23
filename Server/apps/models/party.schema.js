@@ -1,21 +1,5 @@
 const mongoose = require('mongoose');
 
-// const lastTransactionSchema = new mongoose.Schema({
-//     amount: {
-//         type: Number,
-//         default: 0
-//     },
-//     type: {
-//         type: String,
-//         enum: ['SALE', 'RETURN', 'PURCHASE', 'PAYMENT','OPENING_BALANCE'],
-//         default: "OPENING_BALANCE"
-//     },
-//     date: {
-//         type: Date,
-//         default: null
-//     }
-// }, { _id: false });
-
 const partySchema = new mongoose.Schema({
 
     name: {
@@ -42,40 +26,20 @@ const partySchema = new mongoose.Schema({
         required: true
     },
 
-    // balanceDirection: {
-    //     type: String,
-    //     enum: ['Receivable', 'Payable'],
-    // },
-
     notes: {
         type: String,
         trim: true
     },
 
-    // totalSales: {
-    //     type: Number,
-    //     default: 0
-    // },
+    outstanding: {
+        type: Number,
+        default: 0
+    },
 
-    // totalPurchase: {
-    //     type: Number,
-    //     default: 0
-    // },
-
-    // totalPaid: {
-    //     type: Number,
-    //     default: 0
-    // },
-
-    // outstanding: {
-    //     type: Number,
-    //     default: 0
-    // },
-
-    // lastTransection: {
-    //     type: Number,
-    //     default: 0
-    // },
+    lastTransection: {
+         type: Date,
+        default: Date.now
+    },
 
     isActive: {
         type: Boolean,

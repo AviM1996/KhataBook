@@ -522,12 +522,29 @@ const calculateFIFOOutstanding = (transactions) => {
   };
 };
 
-const getPartyCountsFIFO = async () => {
+
+const getPartyCounts = async () => {
   const now = new Date();
   const ninetyDaysAgo = new Date(now);
   ninetyDaysAgo.setDate(now.getDate() - 90);
 
-  const parties = await Party.find({ isActive: true });
+  // ✅ fetch all parties
+  const parties = await Party.find({ isActive: true }).lean();
+
+  const partyIds = parties.map(p => p._id);
+
+  // ✅ fetch all transactions in ONE query
+  const transactions = await Transaction.find({
+    partyId: { $in: partyIds }
+  }).lean();
+
+  // ✅ group transactions by partyId
+  const txnMap = {};
+  for (const tx of transactions) {
+    const id = tx.partyId.toString();
+    if (!txnMap[id]) txnMap[id] = [];
+    txnMap[id].push(tx);
+  }
 
   let totalCustomers = 0;
   let totalSuppliers = 0;
@@ -539,12 +556,10 @@ const getPartyCountsFIFO = async () => {
 
     if (party.recordType !== "CUSTOMER") continue;
 
-    const transactions = await Transaction.find({
-      partyId: party._id,
-    }).lean();
+    const partyTxns = txnMap[party._id.toString()] || [];
 
     const { totalOutstanding, oldestUnpaidDate } =
-      calculateFIFOOutstanding(transactions);
+      calculateFIFOOutstanding(partyTxns);
 
     if (
       totalOutstanding > 0 &&

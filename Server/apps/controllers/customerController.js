@@ -1,5 +1,36 @@
 const Customer = require('../models/Customer');
 
+exports.createCustomer = async (req, res) => {
+  try {
+    const { name, phone, address, openingBalance, balanceDirection, reminderDate, notes } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ message: 'Name and phone are required' });
+    }
+
+    const customer = await Customer.create({
+      name,
+      phone,
+      address,
+      openingBalance: Number(openingBalance) || 0,
+      balanceDirection,
+      reminderDate,
+      notes,
+      createdBy: req.user ? req.user.id : null,
+      updatedBy: req.user ? req.user.id : null
+    });
+
+    const formatted = customer.toObject();
+    formatted.id = formatted._id;
+    delete formatted._id;
+
+    res.status(201).json(formatted);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
 exports.getCustomers = async (req, res) => {
   try {
     const customers = await Customer.find({ isActive: true }).sort('-createdAt');
@@ -59,9 +90,6 @@ exports.getCustomers = async (req, res) => {
   }
 };
 
-// @desc    Get single customer by ID
-// @route   GET /api/customers/:id
-// @access  Public
 exports.getCustomerById = async (req, res) => {
   try {
     const customer = await Customer.findOne({ _id: req.params.id, isActive: true });
@@ -80,42 +108,6 @@ exports.getCustomerById = async (req, res) => {
   }
 };
 
-// @desc    Create new customer
-// @route   POST /api/customers
-// @access  Public
-exports.createCustomer = async (req, res) => {
-  try {
-    const { name, phone, address, openingBalance, balanceDirection, reminderDate, notes } = req.body;
-
-    if (!name || !phone) {
-      return res.status(400).json({ message: 'Name and phone are required' });
-    }
-
-    const customer = await Customer.create({
-      name,
-      phone,
-      address,
-      openingBalance: Number(openingBalance) || 0,
-      balanceDirection,
-      reminderDate,
-      notes,
-      createdBy: req.user ? req.user.id : null,
-      updatedBy: req.user ? req.user.id : null
-    });
-
-    const formatted = customer.toObject();
-    formatted.id = formatted._id;
-    delete formatted._id;
-
-    res.status(201).json(formatted);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-// @desc    Update a customer
-// @route   PUT /api/customers/:id
-// @access  Public
 exports.updateCustomer = async (req, res) => {
   try {
     const updateData = { ...req.body };
@@ -143,9 +135,6 @@ exports.updateCustomer = async (req, res) => {
   }
 };
 
-// @desc    Soft delete a customer
-// @route   DELETE /api/customers/:id
-// @access  Public
 exports.softDeleteCustomer = async (req, res) => {
   try {
     const customer = await Customer.findByIdAndUpdate(
@@ -164,9 +153,6 @@ exports.softDeleteCustomer = async (req, res) => {
   }
 };
 
-// @desc    Get a single customer's balance calculation
-// @route   GET /api/customers/:id/balance
-// @access  Public
 exports.getCustomerBalance = async (req, res) => {
   try {
     const customer = await Customer.findOne({ _id: req.params.id, isActive: true });

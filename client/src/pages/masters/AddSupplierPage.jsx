@@ -6,9 +6,9 @@ import { DynamicFormField } from '../../components';
 import { Page, Button } from '../../components';
 import styles from './AddCustomerPage.module.css';
 
-export default function AddCustomerPage() {
+export default function AddSupplierPage() {
   const navigate = useNavigate();
-  const config = ENTITY_CONFIG.CUSTOMER;
+  const config = ENTITY_CONFIG.SUPPLIER;
   const recordType = config.apiKey;
 
   // Build initial form state from config fields
@@ -38,7 +38,7 @@ export default function AddCustomerPage() {
 
     try {
       await addParty({ ...form, recordType });
-      navigate('/masters/customer');
+      navigate('/masters/supplier');
     } catch {
       setError('Failed to save. Please try again.');
     }
@@ -49,7 +49,7 @@ export default function AddCustomerPage() {
       title={`Add ${config.label}`}
       subtitle={`Create a new ${config.label.toLowerCase()} profile`}
       showBack
-      onBack={() => navigate('/masters/customer')}
+      onBack={() => navigate('/masters/supplier')}
     >
       <form className={styles.card} onSubmit={handleSubmit} noValidate>
         <div className={styles.section}>
@@ -71,7 +71,7 @@ export default function AddCustomerPage() {
           <Button
             type="button"
             variant="secondary"
-            onClick={() => navigate('/masters/customer')}
+            onClick={() => navigate('/masters/supplier')}
             disabled={isSaving}
           >
             Cancel

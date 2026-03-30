@@ -20,7 +20,8 @@ export default function Header() {
   const getPageTitle = () => {
     const path = location.pathname;
     if (path.startsWith("/dashboard")) return "Dashboard";
-    if (path.startsWith("/masters")) return "Customers";
+    if (path.startsWith("/masters/customer")) return "Customers";
+    if (path.startsWith("/masters/supplier")) return "Suppliers";
     if (path.startsWith("/ledger/")) return "Ledger";
     if (path.startsWith("/ledger-system/customer")) return "Customer Ledger";
     if (path.startsWith("/ledger-system/supplier")) return "Supplier Ledger";

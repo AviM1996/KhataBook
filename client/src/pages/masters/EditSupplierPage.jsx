@@ -1,6 +1,6 @@
 /**
- * EditCustomerPage.jsx
- * Edit existing customer data via React Query, render fields dynamically from ENTITY_CONFIG.
+ * EditSupplierPage.jsx
+ * Edit existing supplier data via React Query, render fields dynamically from ENTITY_CONFIG.
  */
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -12,10 +12,10 @@ import { DynamicFormField } from '../../components';
 import { Page, Button } from '../../components';
 import styles from './editCustomerPage.module.css';
 
-export default function EditCustomerPage() {
+export default function EditSupplierPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const config = ENTITY_CONFIG.CUSTOMER;
+  const config = ENTITY_CONFIG.SUPPLIER;
 
   const buildEmptyForm = () =>
     config.fields.reduce((acc, f) => ({ ...acc, [f.name]: '' }), {});
@@ -37,7 +37,7 @@ export default function EditCustomerPage() {
     if (!loading && res) {
       const party = res?.item || res?.data || res;
       if (!party?.name) {
-        navigate('/masters/customer');
+        navigate('/masters/supplier');
         return;
       }
 
@@ -63,7 +63,7 @@ export default function EditCustomerPage() {
     setError('');
     try {
       await updateParty(id, form);
-      navigate('/masters/customer');
+      navigate('/masters/supplier');
     } catch {
       setError('Failed to update. Please try again.');
     }
@@ -73,7 +73,7 @@ export default function EditCustomerPage() {
     if (!window.confirm(`Delete ${form.name}? This cannot be undone.`)) return;
     try {
       await deleteParty(id);
-      navigate('/masters/customer');
+      navigate('/masters/supplier');
     } catch {
       setError('Failed to delete.');
     }
@@ -84,7 +84,7 @@ export default function EditCustomerPage() {
       title={`Edit ${config.label}`}
       subtitle={form.name ? `Editing: ${form.name}` : ''}
       showBack
-      onBack={() => navigate('/masters/customer')}
+      onBack={() => navigate('/masters/supplier')}
       loading={loading && 'Loading…'}
     >
       <form className={styles.card} onSubmit={handleSubmit} noValidate>
@@ -120,7 +120,7 @@ export default function EditCustomerPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => navigate('/masters/customer')}
+              onClick={() => navigate('/masters/supplier')}
               disabled={isSaving}
             >
               Cancel

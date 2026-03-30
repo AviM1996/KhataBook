@@ -52,7 +52,6 @@ const transactionSchema = new mongoose.Schema(
 
     dueDate: {
       type: Date,
-      index: true,
     },
 
     paidAt: {

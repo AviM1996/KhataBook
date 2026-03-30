@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../../middleware/authMiddleware');
+const authMiddleware = require('../../libs/middleware/authMiddleware');
 const partyController=require('../../controllers/partyController')
 
 
@@ -11,6 +11,7 @@ router.get('/card',partyController.viewPartyCard)
 router.post('/add',partyController.createParty)
 router.put('/update/:id',partyController.updateParty)
 router.get("/:id", partyController.viewSingleParty);
+router.get("/calculate-risk/:partyId", partyController.calcuateRisklevel);
 
 // router.route('/')
 //   .get(getCustomers)

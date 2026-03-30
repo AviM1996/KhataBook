@@ -272,7 +272,7 @@ export default function UniversalLedgerPage() {
             activeTab={activeTab}
             transactions={transactions}
             loading={txLoading}
-            onBack={() => navigate('/masters')}
+            onBack={() => navigate(`/masters/${activeTab}`)}
             onAddTransaction={handleAddTransaction}
             onEditTransaction={(tx) => {
               setEditTx({

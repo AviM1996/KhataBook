@@ -113,25 +113,25 @@ const getDashboardSalesPayment = async () => {
 
   return {
     today: format(
-      ['6 AM','8 AM','10 AM','12 PM','2 PM','4 PM','6 PM'],
+      ['6 AM', '8 AM', '10 AM', '12 PM', '2 PM', '4 PM', '6 PM'],
       todayData,
       i => i * 2 + 6
     ),
 
     weekly: format(
-      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
       weeklyData,
       i => i + 1
     ),
 
     monthly: format(
-      ['Week 1','Week 2','Week 3','Week 4','Week 5'],
+      ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
       monthlyData,
       i => i + 1
     ),
 
     yearly: format(
-      ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       yearlyData,
       i => i + 1
     )
@@ -329,7 +329,7 @@ const getAgingReport = async () => {
 
   // 🎯 Format to OBJECT (NOT array)
   const formatToObject = (data) => {
-    const buckets = ['0–30 Days','31–60 Days','61–90 Days','90+ Days'];
+    const buckets = ['0–30 Days', '31–60 Days', '61–90 Days', '90+ Days'];
 
     const result = {};
 

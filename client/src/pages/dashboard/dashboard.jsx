@@ -54,10 +54,10 @@ export default function Dashboard() {
 
     switch (index) {
       case 0: // Total Customers
-        navigate("/masters?tab=customers");
+        navigate("/masters/customer");
         break;
       case 1: // Total Suppliers
-        navigate("/masters?tab=suppliers");
+        navigate("/masters/supplier");
         break;
 
       case 2: // 90+ Days Due

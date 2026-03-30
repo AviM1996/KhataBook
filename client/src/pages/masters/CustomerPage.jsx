@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   MdDashboard, MdAdd, MdSearch,
   MdWarning, MdTrendingUp, MdToday, MdNotifications,
@@ -8,10 +8,9 @@ import {
 } from 'react-icons/md';
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { Toaster, toast } from 'react-hot-toast';
-import { useMastersStore } from '../../store/useMastersStore';
 import { usePartyQuery } from '../../hooks/usePartyQuery';
 import { usePartyMutations } from '../../hooks/usePartyMutations';
-import { ENTITY_CONFIG, getConfigByTab } from '../../config/entityConfig';
+import { ENTITY_CONFIG } from '../../config/entityConfig';
 import {
   CreateEditModal,
   ConfirmDeleteModal,
@@ -19,9 +18,6 @@ import {
   Pagination,
 } from '../../components';
 import styles from './MastersPage.module.css';
-
-/* ─── TABS ─── */
-const TABS = Object.values(ENTITY_CONFIG).map((c) => ({ id: c.tabId, label: c.label }));
 
 /* ─── RISK BADGE ─── */
 function RiskBadge({ score = 0 }) {
@@ -43,29 +39,21 @@ function AmountCell({ value = 0, color }) {
 }
 
 /* ─── MAIN COMPONENT ─── */
-
-export default function MastersPage() {
+export default function CustomerPage() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const config = ENTITY_CONFIG.CUSTOMER;
+  const recordType = config.apiKey;
+  const entityLabel = config.label;
 
-  const {
-    activeTab, setActiveTab,
-    searchQuery, setSearchQuery,
-    currentPage, setCurrentPage,
-    isModalOpen, editId, formValues,
-    openEditModal, closeModal, handleFieldChange,
-  } = useMastersStore();
-
-  /* sync tab from location */
-  useEffect(() => {
-    const returnedTab = location.state?.activeTab;
-    if (returnedTab) { setActiveTab(returnedTab); return; }
-    const params = new URLSearchParams(location.search);
-    const queryTab = params.get('tab');
-    if (queryTab && TABS.some((t) => t.id === queryTab.toLowerCase())) {
-      setActiveTab(queryTab.toLowerCase());
-    }
-  }, [location.search, location.state, setActiveTab]);
+  // Local state instead of store
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [formValues, setFormValues] = useState({});
+  const [eyeOpen, setEyeOpen] = useState(true);
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   useEffect(() => {
@@ -73,15 +61,7 @@ export default function MastersPage() {
     return () => clearTimeout(t);
   }, [searchQuery]);
 
-  const [activeFilter, setActiveFilter] = useState(null);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [eyeOpen, setEyeOpen] = useState(true);
-
   const LIMIT = 10;
-  const config = getConfigByTab(activeTab);
-  const recordType = config.apiKey;
-  const entityLabel = config.label;
-
   const { data, loading, summary, summaryLoading, pagination } = usePartyQuery({
     recordType,
     page: currentPage,
@@ -92,14 +72,31 @@ export default function MastersPage() {
   const { addParty, updateParty, deleteParty, isSaving } = usePartyMutations();
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  const openEditModal = useCallback((row) => {
+    setEditId(row._id);
+    setFormValues(row);
+    setIsModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setEditId(null);
+    setFormValues({});
+  }, []);
+
+  const handleFieldChange = useCallback((name, value) => {
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
   const handleSave = useCallback(async () => {
     if (editId) await updateParty(editId, formValues);
     else await addParty({ ...formValues, recordType });
-  }, [editId, formValues, recordType, addParty, updateParty]);
+    closeModal();
+  }, [editId, formValues, recordType, addParty, updateParty, closeModal]);
 
   const handleViewLedger = useCallback(
-    (row) => navigate(`/ledger/${activeTab}/${row._id || row.id}`),
-    [activeTab, navigate],
+    (row) => navigate(`/ledger/customer/${row._id || row.id}`),
+    [navigate],
   );
 
   const handleConfirmDelete = useCallback(async () => {
@@ -164,19 +161,6 @@ export default function MastersPage() {
       loading={loading}
       actions={
         <div className={styles.headerBar}>
-          {/* Customer / Supplier toggle */}
-          <div className={styles.tabToggle}>
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                className={`${styles.tabBtn} ${activeTab === tab.id ? styles.tabBtnActive : ''}`}
-                onClick={() => { setActiveTab(tab.id); setCurrentPage(1); }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
           {/* Search */}
           <div className={styles.searchInputWrap}>
             <MdSearch className={styles.searchIcon} />
@@ -191,7 +175,7 @@ export default function MastersPage() {
           {/* Add Button */}
           <button
             className={styles.addBtn}
-            onClick={() => navigate('/masters/add', { state: { defaultTab: recordType } })}
+            onClick={() => navigate('/masters/customer/add', { state: { defaultTab: recordType } })}
           >
             <MdAdd /> Add {entityLabel}
           </button>
@@ -350,7 +334,7 @@ export default function MastersPage() {
                           <div className={styles.menuDropdown}>
                             <button
                               className={styles.menuItem}
-                              onClick={() => { openEditModal(row, recordType); setOpenMenuId(null); }}
+                              onClick={() => { openEditModal(row); setOpenMenuId(null); }}
                             >
                               <MdEdit className={styles.menuItemIcon} /> Edit
                             </button>

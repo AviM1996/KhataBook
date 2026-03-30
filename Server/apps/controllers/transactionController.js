@@ -119,7 +119,7 @@ exports.createTransaction = async (req, res) => {
       createdBy: req.user ? req.user.id : null,
       updatedBy: req.user ? req.user.id : null
     });
-    
+
     const formatted = transaction.toObject();
     formatted.id = formatted._id;
     delete formatted._id;
@@ -133,14 +133,14 @@ exports.createTransaction = async (req, res) => {
 exports.updateTransaction = async (req, res) => {
   try {
     const updateData = { ...req.body };
-    
+
     if (updateData.note !== undefined) {
       updateData.description = updateData.note;
       delete updateData.note;
     }
 
     if (req.user && req.user.id) {
-       updateData.updatedBy = req.user.id;
+      updateData.updatedBy = req.user.id;
     }
 
     const transaction = await Transaction.findByIdAndUpdate(

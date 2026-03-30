@@ -3,7 +3,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Role = require("../models/Role")
 const UserHasRoleMapping = require('../models/userHasRoleMapping');
-const config = require('../config/config');
+const BlacklistedToken = require('../models/BlacklistedToken');
+const config = require('../shared/config');
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt")
 
 const parseTimeToMs = (timeStr) => {
@@ -96,7 +97,7 @@ const loginUser = async (req, res) => {
     }
 };
 
-const refreshTokenHandler = (req, res) => {
+const refreshTokenHandler = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!refreshToken) {
@@ -104,6 +105,12 @@ const refreshTokenHandler = (req, res) => {
     }
 
     try {
+        // Check blacklist
+        const isBlacklisted = await BlacklistedToken.findOne({ token: refreshToken });
+        if (isBlacklisted) {
+            return res.status(401).json({ message: "Refresh token invalidated" });
+        }
+
         const decoded = jwt.verify(refreshToken, config.auth.refreshSecret);
 
         const newAccessToken = generateAccessToken({
@@ -139,24 +146,39 @@ const getMe = async (req, res) => {
     }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
     try {
+        const accessToken = req.cookies?.accessToken;
         const refreshToken = req.cookies?.refreshToken;
 
-        if (refreshToken) {
-            console.log('Invalidate token:', refreshToken);
-        }
+        const blacklistToken = async (token) => {
+            if (!token) return;
+            try {
+                const decoded = jwt.decode(token);
+                if (decoded && decoded.exp) {
+                    await BlacklistedToken.create({
+                        token,
+                        expiresAt: new Date(decoded.exp * 1000)
+                    });
+                }
+            } catch (err) {
+                console.error("Error blacklisting token:", err.message);
+            }
+        };
+
+        await blacklistToken(accessToken);
+        await blacklistToken(refreshToken);
 
         res.clearCookie('accessToken', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: false, // matches login config
+            sameSite: 'Lax',
         });
 
         res.clearCookie('refreshToken', {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: false, // matches login config
+            sameSite: 'Lax',
         });
 
         return res.json({ success: true, message: 'Logged out successfully' });

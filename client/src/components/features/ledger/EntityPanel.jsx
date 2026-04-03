@@ -1,49 +1,48 @@
-import React, { memo } from 'react';
-import { ContactCard, Tabs, LoaderInline } from '../..';
+import React, { memo, useRef, useState, useLayoutEffect } from 'react';
+import { ContactCard, Tabs, LoaderInline, SearchInput } from '../..';
+import { List } from 'react-window';
 import styles from './EntityPanel.module.css';
 
-/* ─── Dynamic Stats Builder ─── */
-const buildStats = (stats, activeTab, styles) => {
-  if (!stats) return null;
+const TABS_CONFIG = [
+  { id: 'customer', label: 'Customers' },
+  { id: 'supplier', label: 'Suppliers' }
+];
 
-  // CUSTOMER
-  if (activeTab === 'customer') {
-    return [
-      {
-        label: 'Sales',
-        value: `₹${Number(stats.totalSales || 0).toLocaleString('en-IN')}`
-      },
-      {
-        label: 'Rcvd',
-        value: `₹${Number(stats.totalPayment || 0).toLocaleString('en-IN')}`
-      },
-      {
-        label: 'Due',
-        value: `₹${Number(stats.outstanding || 0).toLocaleString('en-IN')}`,
-        className: styles.outstandingDue
-      }
-    ];
-  }
+function formatDateLabel(date) {
+  const d = new Date(date);
+  const today = new Date();
 
-  // SUPPLIER
-  return [
-    {
-      label: 'Purchase',
-      value: `₹${Number(stats.totalPurchase || 0).toLocaleString('en-IN')}`
-    },
-    {
-      label: 'Paid',
-      value: `₹${Number(stats.totalPayment || 0).toLocaleString('en-IN')}`
-    },
-    {
-      label: 'Due',
-      value: `₹${Number(stats.outstanding || 0).toLocaleString('en-IN')}`,
-      className: styles.outstandingDue
-    }
-  ];
-};
+  const diff = Math.floor((today - d) / (1000 * 60 * 60 * 24));
 
-/* ─── Component ─── */
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  if (diff < 7) return `${diff}d ago`;
+
+  return d.toLocaleDateString('en-IN');
+}
+
+const RowComponent = memo(({ index, style, entities, activeTab, selectedEntityId, onSelect }) => {
+  const entity = entities[index];
+  const id = entity.id || entity._id;
+  const lastTxnDate = entity.lastTxnDate || entity.lastTxDate || null;
+
+  return (
+    <div style={{ ...style, overflow: 'hidden' }}>
+      <ContactCard
+        id={id}
+        initial={(entity.name || '?').charAt(0).toUpperCase()}
+        name={entity.name}
+        phone={entity.phone}
+        dateLabel={lastTxnDate ? formatDateLabel(lastTxnDate) : ''}
+        activeTab={activeTab}
+        outstanding={entity.outstanding}
+        isActive={selectedEntityId === id}
+        onClick={onSelect}
+      />
+    </div>
+  );
+});
+
 export default memo(function EntityPanel({
   activeTab,
   onTabChange,
@@ -54,32 +53,40 @@ export default memo(function EntityPanel({
   selectedEntityId,
   onSelect,
 }) {
+  const listRef = useRef(null);
+  const [listHeight, setListHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!listRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      setListHeight(entries[0].contentRect.height);
+    });
+    observer.observe(listRef.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      
+
       <div className={styles.header}>
-        <Tabs 
-          tabs={[
-            { id: 'customer', label: 'Customers' },
-            { id: 'supplier', label: 'Suppliers' }
-          ]}
+        <Tabs
+          tabs={TABS_CONFIG}
           activeTab={activeTab}
           onChange={onTabChange}
           fullWidth
         />
 
         <div className={styles.searchWrap}>
-          <input
-            className={styles.searchInput}
-            type="text"
+          <SearchInput
+            value={search || ''}
             placeholder={`Search ${activeTab}s…`}
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(val) => onSearchChange(val)}
+            onClear={() => onSearchChange('')}
           />
         </div>
       </div>
 
-      <div className={styles.list}>
+      <div className={styles.list} ref={listRef} style={{ flex: 1, minHeight: 0 }}>
         {isLoading ? (
           <div className={styles.emptyMsg}>
             <LoaderInline size="sm" />
@@ -92,30 +99,19 @@ export default memo(function EntityPanel({
             {search ? 'No results found' : `No ${activeTab}s yet`}
           </div>
         ) : (
-          entities.map((entity) => {
-            const id = entity.id || entity._id;
-            const lastTxDate = entity.lastTxDate || null;
-
-            return (
-              <ContactCard
-                key={id}
-                initial={(entity.name || '?').charAt(0).toUpperCase()}
-                name={entity.name}
-                phone={entity.phone}
-                dateLabel={
-                  lastTxDate
-                    ? new Date(lastTxDate).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short'
-                      })
-                    : ''
-                }
-                stats={buildStats(entity, activeTab, styles)} // ✅ dynamic stats from API directly
-                isActive={selectedEntityId === id}
-                onClick={() => onSelect(id)}
-              />
-            );
-          })
+          <List
+            height={listHeight || 400}
+            width="100%"
+            rowCount={entities.length}
+            rowHeight={82}
+            rowComponent={RowComponent}
+            rowProps={{
+              entities,
+              activeTab,
+              selectedEntityId,
+              onSelect
+            }}
+          />
         )}
       </div>
     </div>

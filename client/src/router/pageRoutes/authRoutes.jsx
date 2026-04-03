@@ -1,5 +1,6 @@
-import Login from '../../pages/auth/SignIn';
-import Home from '../../pages/auth/Home';
+import { lazy } from 'react';
+const Login = lazy(() => import('../../pages/auth/SignIn'));
+const Home = lazy(() => import('../../pages/auth/Home'));
 
 export const authRoutes = [
     {
@@ -18,13 +19,4 @@ export const authRoutes = [
             public: true,
         },
     },
-    // {
-    //     path: '/register',
-    //     element: <Login />,
-    //     meta: {
-    //         layout: 'auth',
-    //         public: true,
-    //     },
-    // },
-
 ];

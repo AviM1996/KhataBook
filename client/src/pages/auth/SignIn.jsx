@@ -1,11 +1,12 @@
 import styles from "./SignIn.module.css";
-import { Button,Logo,Footer} from "../../components";
+import { Button, Logo, Footer, EyeShow } from "../../components";
 import { useLogin } from "../../hooks/useLogin";
 import { Link } from "@mui/material";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function Login() {
-  const {email,
+  const {
+    email,
     password,
     showPassword,
     rememberMe,
@@ -15,16 +16,17 @@ export default function Login() {
     setRememberMe,
     handleEmailChange,
     handlePasswordChange,
-    handleSubmit} = useLogin();
+    handleSubmit,
+  } = useLogin();
 
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <Logo/>
+        <Logo />
         <h3>Sign in to your account</h3>
         <p className={styles.sub}>Access your ledger securely</p>
 
-        {error && (<div className={styles.error}>{error}</div>)}
+        {error && <div className={styles.error}>{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <input
@@ -32,34 +34,24 @@ export default function Login() {
             placeholder="Email address"
             value={email}
             onChange={handleEmailChange}
-            autoComplete="email" 
+            autoComplete="email"
             required
           />
 
-          <div className={styles.passwordWrapper}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={password}
-              onChange={handlePasswordChange}
-              autoComplete="current-password"
-              required
-            />
-
-            <span
-              className={styles.eyeIcon}
-              onClick={() => setShowPassword((prev) => !prev)}
-              title={showPassword ? "Hide password" : "Show password"}
-            >{showPassword ? <FiEyeOff /> : <FiEye />}
-            </span>
-          </div>
+          <EyeShow
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={handlePasswordChange}
+            autoComplete="current-password"
+          />
 
           <div className={styles.row}>
             <label>
-              <input 
-              type="checkbox" 
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
               Remember me
             </label>

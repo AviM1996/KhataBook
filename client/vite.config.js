@@ -60,5 +60,18 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@pages': path.resolve(__dirname, './src/pages'),
     }
+  },
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom/client',
+      'react-router-dom',
+      'recharts',
+      'echarts',
+      'react-icons/md',
+      'react-hot-toast',
+      '@tanstack/react-query',
+      'axios',
+    ]
   }
 })

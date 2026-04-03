@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { routes } from "./index";
 import AuthGuard from "../guards/AuthGuard";
@@ -14,26 +15,28 @@ export default function AppRouter() {
   }
 
   return (
-    <Routes>
-      {routes.map((route, i) => {
-        let element = route.element;
+    <Suspense fallback={<LoaderOverlay text="Loading module..." />}>
+      <Routes>
+        {routes.map((route, i) => {
+          let element = route.element;
 
-        // Wrap with Layout if not an auth page
-        if (route.meta?.layout !== "auth") {
-          element = <Layout>{element}</Layout>;
-        }
+          // Wrap with Layout if not an auth page
+          if (route.meta?.layout !== "auth") {
+            element = <Layout>{element}</Layout>;
+          }
 
-        // Apply Guards
-        if (route.meta?.public) {
-          element = <PublicGuard>{element}</PublicGuard>;
-        } else if (route.meta?.protected) {
-          element = <AuthGuard>{element}</AuthGuard>;
-        }
+          // Apply Guards
+          if (route.meta?.public) {
+            element = <PublicGuard>{element}</PublicGuard>;
+          } else if (route.meta?.protected) {
+            element = <AuthGuard>{element}</AuthGuard>;
+          }
 
-        return (
-          <Route key={i} path={route.path} element={element} />
-        );
-      })}
-    </Routes>
+          return (
+            <Route key={i} path={route.path} element={element} />
+          );
+        })}
+      </Routes>
+    </Suspense>
   );
 }

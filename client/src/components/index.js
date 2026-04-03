@@ -16,7 +16,7 @@ export { default as Pagination } from './ui/Pagination/Pagination';
 export { default as SummaryCard } from './ui/SummaryCard/SummaryCard';
 export { default as Tabs } from './ui/Tabs/Tabs';
 export { default as EmptyState } from './ui/EmptyState/EmptyState';
-export { default as SearchBar } from './ui/SearchBar/SearchBar';
+export { default as SearchInput } from './ui/SearchBar/SearchBar';
 export { default as TimeFilter } from './ui/TimeFilter/TimeFilter';
 export { default as DataTable } from './ui/DataTable/DataTable';
 export { default as ActionButtons } from './ui/ActionButtons/ActionButtons';
@@ -29,6 +29,7 @@ export { default as DrilldownModal } from './ui/DrilldownModal/DrilldownModal';
 export { default as ContactCard } from './ui/ContactCard/ContactCard';
 export { default as TimelineBubble } from './ui/TimelineBubble/TimelineBubble';
 export { default as AvatarHeader } from './ui/AvatarHeader/AvatarHeader';
+export { default as EyeShow, EyeToggle } from './ui/eyeIcons/eyeIcons';
 
 // Form Components
 export { default as DynamicFormField } from './form/DynamicFormField/DynamicFormField';

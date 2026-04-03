@@ -3,27 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Page.module.css';
 import { Loader, LoaderOverlay } from '../../index';
 
-/**
- * Page - Generic Page Wrapper Component
- * 
- * Provides a consistent layout for all pages including:
- * - Header with title and subtitle
- * - Back button support
- * - Action buttons in header
- * - Loading and error states
- * - Standard padding and responsiveness
- * 
- * @param {string} title - Page title
- * @param {string} subtitle - Optional page description
- * @param {boolean} loading - Shows a loader if true
- * @param {boolean} fullscreenLoader - If loading, show LoaderOverlay instead of inline Loader
- * @param {string} error - Error message to display
- * @param {React.Node} actions - Action elements (buttons, etc.) for the header
- * @param {boolean} showBack - Whether to show a back button
- * @param {Function} onBack - Custom back action (defaults to navigate(-1))
- * @param {string} className - Extra CSS class for the content area
- * @param {React.Node} children - Main page content
- */
 const Page = ({
   title,
   subtitle,

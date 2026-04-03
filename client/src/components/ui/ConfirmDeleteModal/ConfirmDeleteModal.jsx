@@ -1,16 +1,8 @@
 import React from 'react';
 import { MdDelete } from 'react-icons/md';
 import styles from './ConfirmDeleteModal.module.css';
+import Button from '../Button/Button'
 
-/**
- * Styled confirmation modal for destructive actions
- * @param {boolean} isOpen - Whether the modal is visible
- * @param {function} onCancel - Cancel click handler
- * @param {function} onConfirm - Confirm (Delete) click handler
- * @param {string} entityName - Name of the entity being deleted
- * @param {string} [title='Delete Record'] - Modal title
- * @param {boolean} [loading=false] - Disables buttons while deleting
- */
 export default function ConfirmDeleteModal({
   isOpen,
   onCancel,
@@ -40,20 +32,23 @@ export default function ConfirmDeleteModal({
         </p>
 
         <div className={styles.actions}>
-          <button
-            className={styles.cancelBtn}
+          <Button
+            variant="secondary"
             onClick={onCancel}
             disabled={loading}
+            className={styles.cancelBtn}
           >
             Cancel
-          </button>
-          <button
-            className={styles.deleteBtn}
+          </Button>
+          <Button
+            variant="danger"
             onClick={onConfirm}
-            disabled={loading}
+            loading={loading}
+            icon={<MdDelete />}
+            className={styles.deleteBtn}
           >
-            {loading ? 'Deleting…' : 'Delete'}
-          </button>
+            Delete
+          </Button>
         </div>
       </div>
     </div>

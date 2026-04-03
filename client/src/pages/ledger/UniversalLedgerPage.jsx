@@ -1,14 +1,17 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import EntityPanel from '../../components/features/ledger/EntityPanel';
+import LedgerPanel from '../../ledger/components/LedgerPanel';
+
 import { useParams, useNavigate } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import useDebounce from '../../hooks/useDebounce';
 import { useQueryClient } from '@tanstack/react-query';
 import { getParties } from '../../api/party';
 import { getPartyTransactions, createTransaction, updateTransaction, deleteTransaction } from '../../api/transaction';
-import { CreateEditModal, ConfirmDeleteModal } from '../../components';
+import { TRANSACTION_FIELDS } from '../../config/entityConfig';
+import { Page, ActionButtons } from '../../components';
+import { useModal } from '../../context/ModalContext';
 
-import EntityPanel from '../../components/features/ledger/EntityPanel';
-import LedgerPanel from '../../ledger/components/LedgerPanel';
 import styles from './LedgerV2.module.css';
 
 export default function UniversalLedgerPage() {
@@ -28,9 +31,7 @@ export default function UniversalLedgerPage() {
   const [allTransactions, setAllTransactions] = useState({}); 
   const [txLoading, setTxLoading] = useState(false);
 
-  // Edit / Delete states
-  const [editTx, setEditTx] = useState(null);
-  const [deleteTx, setDeleteTx] = useState(null);
+  const { openModal, closeModal } = useModal();
 
   // Mobile: track which panel is visible
   const [mobileView, setMobileView] = useState(entityId ? 'right' : 'left');
@@ -163,62 +164,74 @@ export default function UniversalLedgerPage() {
     }
   }, [activeTab, selectedEntityId]);
 
-  // ─── Edit transaction ───
-  const handleEditSubmit = async () => {
-    if (!editTx) return;
-    try {
-      const payload = {
-        amount: Number(editTx.amount),
-        paymentMethod: editTx.paymentMethod,
-        date: editTx.date,
-        note: editTx.note
-      };
-      await updateTransaction(editTx.id || editTx._id, payload);
-      toast.success('Transaction updated! ✓');
-      setEditTx(null);
-      queryClient.invalidateQueries({ queryKey: ['parties'] });
-      entitiesCache.current = {};
-      setRefreshTrigger(t => t + 1);
-      
-      const res = await getPartyTransactions(selectedEntityId, activeTab === 'customer' ? 'CUSTOMER' : 'SUPPLIER');
-      const txList = res?.data || res || [];
-      setTransactions(txList);
-      setAllTransactions((prev) => ({ ...prev, [selectedEntityId]: txList }));
-    } catch {
-      toast.error('Failed to update transaction');
-    }
-  };
+  // ─── Refresh transactions after edit/delete ───
+  const refreshAfterChange = useCallback(async () => {
+    queryClient.invalidateQueries({ queryKey: ['parties'] });
+    entitiesCache.current = {};
+    setRefreshTrigger((t) => t + 1);
 
-  // ─── Delete transaction ───
-  const confirmDelete = async () => {
-    if (!deleteTx) return;
-    try {
-      await deleteTransaction(deleteTx.id || deleteTx._id);
-      toast.success('Transaction deleted');
-      setDeleteTx(null);
-      queryClient.invalidateQueries({ queryKey: ['parties'] });
-      entitiesCache.current = {};
-      setRefreshTrigger(t => t + 1);
-      
-      const res = await getPartyTransactions(selectedEntityId, activeTab === 'customer' ? 'CUSTOMER' : 'SUPPLIER');
-      const txList = res?.data || res || [];
-      setTransactions(txList);
-      setAllTransactions((prev) => ({ ...prev, [selectedEntityId]: txList }));
-    } catch {
-      toast.error('Failed to delete transaction');
-    }
-  };
+    const recordType = activeTab === 'customer' ? 'CUSTOMER' : 'SUPPLIER';
+    const res = await getPartyTransactions(selectedEntityId, recordType);
+    const txList = res?.data || res || [];
+    setTransactions(txList);
+    setAllTransactions((prev) => ({ ...prev, [selectedEntityId]: txList }));
+  }, [activeTab, selectedEntityId]);
+
+  // ─── Edit transaction via modal ───
+  const handleEditTransaction = useCallback((tx) => {
+    const formattedTx = {
+      ...tx,
+      date: tx.date ? new Date(tx.date).toISOString().slice(0, 10) : '',
+    };
+    openModal('createEdit', {
+      title: 'Edit Transaction',
+      fields: TRANSACTION_FIELDS,
+      values: formattedTx,
+      onSubmit: async (formValues) => {
+        try {
+          await updateTransaction(tx.id || tx._id, {
+            amount: Number(formValues.amount),
+            paymentMethod: formValues.paymentMethod,
+            date: formValues.date,
+            note: formValues.note,
+          });
+          toast.success('Transaction updated! ✓');
+          closeModal();
+          await refreshAfterChange();
+        } catch {
+          toast.error('Failed to update transaction');
+        }
+      },
+    });
+  }, [openModal, closeModal, refreshAfterChange]);
+
+  // ─── Delete transaction via modal ───
+  const handleDeleteTransaction = useCallback((tx) => {
+    openModal('confirmDelete', {
+      entityName: tx.label || tx.type || 'transaction',
+      onConfirm: async () => {
+        try {
+          await deleteTransaction(tx.id || tx._id);
+          toast.success('Transaction deleted');
+          closeModal();
+          await refreshAfterChange();
+        } catch {
+          toast.error('Failed to delete transaction');
+        }
+      },
+    });
+  }, [openModal, closeModal, refreshAfterChange]);
 
   // ─── Select entity (with mobile panel switch) ───
-  const handleSelect = React.useCallback((id) => {
+  const handleSelect = useCallback((id) => {
     setSelectedEntityId(id);
     setMobileView('right');
   }, []);
 
   // ─── Switch tab ───
-  const handleTabChange = React.useCallback((tab) => {
+  const handleTabChange = useCallback((tab) => {
     setActiveTab(tab);
-    setSearch(''); // clear search on tab switch
+    setSearch('');
     setSelectedEntityId('');
     setTransactions([]);
     setMobileView('left');
@@ -238,8 +251,6 @@ export default function UniversalLedgerPage() {
     () => entities.find((e) => e.id === selectedEntityId || e._id === selectedEntityId),
     [entities, selectedEntityId]
   );
-
-
 
   const shellClass = [
     styles.shell,
@@ -274,46 +285,11 @@ export default function UniversalLedgerPage() {
             loading={txLoading}
             onBack={() => navigate(`/masters/${activeTab}`)}
             onAddTransaction={handleAddTransaction}
-            onEditTransaction={(tx) => {
-              setEditTx({
-                ...tx,
-                date: tx.date ? new Date(tx.date).toISOString().slice(0, 10) : ''
-              });
-            }}
-            onDeleteTransaction={(tx) => setDeleteTx(tx)}
+            onEditTransaction={handleEditTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
           />
         </div>
       </div>
-
-      <CreateEditModal
-        isOpen={!!editTx}
-        onClose={() => setEditTx(null)}
-        title="Edit Transaction"
-        fields={[
-          { name: 'amount', label: 'Amount', type: 'number', required: true },
-          { name: 'paymentMethod', label: 'Payment Method', type: 'select', 
-            options: [
-              { value: 'CASH', label: 'Cash' },
-              { value: 'UPI', label: 'UPI' },
-              { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
-              { value: 'CHEQUE', label: 'Cheque' },
-              { value: 'N/A', label: 'N/A' },
-            ] 
-          },
-          { name: 'date', label: 'Date', type: 'date', required: true },
-          { name: 'note', label: 'Note', type: 'textarea' }
-        ]}
-        values={editTx || {}}
-        onChange={(field, val) => setEditTx(prev => ({ ...prev, [field]: val }))}
-        onSubmit={handleEditSubmit}
-      />
-
-      <ConfirmDeleteModal
-        isOpen={!!deleteTx}
-        onCancel={() => setDeleteTx(null)}
-        onConfirm={confirmDelete}
-        entityName={deleteTx?.label || deleteTx?.type || "transaction"}
-      />
     </>
   );
 }

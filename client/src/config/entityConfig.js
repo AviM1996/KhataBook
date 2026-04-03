@@ -1,14 +1,22 @@
-/**
- * entityConfig.js  — PURE JS (no JSX)
- * Single source of truth for all entity types.
- * Column renderers live in entityColumns.jsx (JSX file).
- * To add a new entity: add one new key here + column def in entityColumns.jsx.
- */
-
 export const formatCurrency = (val) =>
   `₹${Math.abs(val || 0).toLocaleString('en-IN')}`;
 
-/** Party schema fields — identical for CUSTOMER and SUPPLIER */
+export const TRANSACTION_FIELDS = [
+  { name: 'amount', label: 'Amount', type: 'number', required: true },
+  {
+    name: 'paymentMethod', label: 'Payment Method', type: 'select',
+    options: [
+      { value: 'CASH', label: 'Cash' },
+      { value: 'UPI', label: 'UPI' },
+      { value: 'BANK_TRANSFER', label: 'Bank Transfer' },
+      { value: 'CHEQUE', label: 'Cheque' },
+      { value: 'N/A', label: 'N/A' },
+    ],
+  },
+  { name: 'date', label: 'Date', type: 'date', required: true },
+  { name: 'note', label: 'Note', type: 'textarea' },
+];
+
 const PARTY_FIELDS = [
   { name: 'name',    label: 'Name',         type: 'text',     required: true },
   { name: 'phone',   label: 'Phone Number',  type: 'text',     required: true },

@@ -1,9 +1,10 @@
-import CustomerPage from "../../pages/masters/CustomerPage";
-import SupplierPage from "../../pages/masters/SupplierPage";
-import AddCustomerPage from "../../pages/masters/AddCustomerPage";
-import AddSupplierPage from "../../pages/masters/AddSupplierPage";
-import EditCustomerPage from "../../pages/masters/editCustomerPage";
-import EditSupplierPage from "../../pages/masters/EditSupplierPage";
+import { lazy } from "react";
+const CustomerPage = lazy(() => import("../../pages/masters/CustomerPage"));
+const SupplierPage = lazy(() => import("../../pages/masters/SupplierPage"));
+const AddCustomerPage = lazy(() => import("../../pages/masters/AddCustomerPage"));
+const AddSupplierPage = lazy(() => import("../../pages/masters/AddSupplierPage"));
+const EditCustomerPage = lazy(() => import("../../pages/masters/editCustomerPage"));
+const EditSupplierPage = lazy(() => import("../../pages/masters/EditSupplierPage"));
 
 export const masterRoutes = [
   {

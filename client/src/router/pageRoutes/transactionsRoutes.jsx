@@ -1,4 +1,5 @@
-import TransactionsListPage from "../../pages/transactions/TransactionsListPage";
+import { lazy } from "react";
+const TransactionsListPage = lazy(() => import("../../pages/transactions/TransactionsListPage"));
 
 export const transactionsRoutes = [
   {

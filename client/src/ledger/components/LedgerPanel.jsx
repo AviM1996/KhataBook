@@ -34,6 +34,11 @@ export default React.memo(function LedgerPanel({
         subtitleLeft={entity.phone ? `☎ ${entity.phone}` : null}
         subtitleRight={entity.address}
         avatarText={(entity.name || '?').charAt(0).toUpperCase()}
+        creditStats={[
+          { label: 'Promise break', value: '10', className: 'red' },
+          { label: 'Risk Score', value: '20/100 (High)', className: 'red' },
+          { label: 'Avg Payment days', value: '45', className: 'secondary' }
+        ]}
         stats={entity ? (
           activeTab === 'customer' ? [
             { label: 'Sales', value: '₹' + Number(entity.totalSales || 0).toLocaleString('en-IN') },

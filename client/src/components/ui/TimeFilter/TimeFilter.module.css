@@ -16,18 +16,18 @@
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--accent-green);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .pill:hover {
-  color: var(--text-primary);
+  color: var(--accent-green);
   background: var(--bg-hover);
 }
 
 .pill.active {
-  background: var(--accent-blue);
+  background: var(--accent-green);
   color: #fff;
   box-shadow: 0 2px 6px rgba(56, 189, 248, 0.25);
 }

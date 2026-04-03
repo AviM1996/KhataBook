@@ -1,5 +1,6 @@
 import React from 'react';
 import MoreMenu from '../MoreMenu/MoreMenu';
+import { MdEdit, MdDelete } from 'react-icons/md';
 import styles from './TimelineBubble.module.css';
 
 export default function TimelineBubble({
@@ -21,8 +22,8 @@ export default function TimelineBubble({
           {(onEdit || onDelete) && (
             <MoreMenu
               items={[
-                ...(onEdit ? [{ label: 'Edit', onClick: onEdit }] : []),
-                ...(onDelete ? [{ label: 'Delete', danger: true, onClick: onDelete }] : [])
+                ...(onEdit ? [{ label: 'Edit', icon: <MdEdit />, onClick: onEdit }] : []),
+                ...(onDelete ? [{ label: 'Delete', icon: <MdDelete />, danger: true, onClick: onDelete }] : [])
               ]}
             />
           )}
@@ -43,6 +44,8 @@ export default function TimelineBubble({
         )}
 
         <span className={styles.timestamp}>{timestamp}</span>
+        
+
       </div>
     </div>
   );

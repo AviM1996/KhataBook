@@ -1,4 +1,6 @@
-import UniversalLedgerPage from "../../pages/ledger/UniversalLedgerPage";
+import { lazy } from "react";
+const UniversalLedgerPage = lazy(() => import("../../pages/ledger/UniversalLedgerPage"));
+const DummyLedgerPage = lazy(() => import("../../pages/ledger/DummyLedgerPage"));
 
 export const ledgerRoutes = [
   {
@@ -6,7 +8,15 @@ export const ledgerRoutes = [
     element: <UniversalLedgerPage />
   },
   {
+    path: "/ledger/dummy",
+    element: <UniversalLedgerPage />
+  },
+  {
     path: "/ledger/:entityType/:entityId",
     element: <UniversalLedgerPage />
+  },
+  {
+    path: "/dummy-ledger",
+    element: <DummyLedgerPage />
   }
 ];

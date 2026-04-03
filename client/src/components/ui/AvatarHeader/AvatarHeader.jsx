@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './AvatarHeader.module.css';
+import { EyeToggle } from '../eyeIcons/eyeIcons';
 
 export default function AvatarHeader({
   title,
@@ -7,9 +8,12 @@ export default function AvatarHeader({
   subtitleRight,
   avatarText,
   stats,
+  creditStats,
   onBack,
   backLabel = "←"
 }) {
+  const [isCreditVisible, setIsCreditVisible] = useState(false);
+
   return (
     <div className={styles.header}>
       {onBack && (
@@ -28,12 +32,33 @@ export default function AvatarHeader({
       )}
 
       <div className={styles.details}>
-        <div className={styles.title}>{title}</div>
+        <div className={styles.titleWrap}>
+          <div className={styles.title}>{title}</div>
+          <EyeToggle 
+            isVisible={isCreditVisible} 
+            onToggle={() => setIsCreditVisible(!isCreditVisible)}
+            className={styles.eyeBtn}
+          />
+        </div>
+        
         {(subtitleLeft || subtitleRight) && (
           <div className={styles.meta}>
             {subtitleLeft && <span>{subtitleLeft}</span>}
             {subtitleLeft && subtitleRight && <span> · </span>}
             {subtitleRight && <span>{subtitleRight}</span>}
+          </div>
+        )}
+
+        {isCreditVisible && creditStats && creditStats.length > 0 && (
+          <div className={styles.creditInfo}>
+            {creditStats.map((cs, idx) => (
+              <div key={idx} className={styles.creditItem}>
+                <span className={styles.creditLabel}>{cs.label}:</span>
+                <span className={`${styles.creditValue} ${cs.className || ''}`}>
+                  {cs.value}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>

@@ -6,7 +6,7 @@
 
 .bubble.right {
   align-self: flex-end;
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
 }
 
 .bubble.left {

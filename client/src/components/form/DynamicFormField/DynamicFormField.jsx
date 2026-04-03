@@ -1,8 +1,3 @@
-/**
- * DynamicFormField.jsx
- * Renders any form field from a config object: { name, label, type, required, options }
- * Supports: text, tel, number, email, textarea, select
- */
 import styles_default from './DynamicFormField.module.css';
 
 export default function DynamicFormField({ field, value, onChange, styles }) {

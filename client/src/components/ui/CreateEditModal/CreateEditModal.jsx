@@ -1,32 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './CreateEditModal.module.css';
 
-/**
- * Reusable Modal for Create/Edit forms
- * @param {boolean} isOpen - Whether modal is visible
- * @param {function} onClose - Close handler
- * @param {string} title - Modal heading
- * @param {Array<{name: string, label: string, type: string, required?: boolean, options?: Array<{value: string, label: string}>}>} fields
- * @param {Object} values - Form state keyed by field name
- * @param {function} onChange - (fieldName, value) => void
- * @param {function} onSubmit - Form submit handler
- * @param {boolean} [saving=false] - Whether save is in progress
- */
 export default function CreateEditModal({
   isOpen,
   onClose,
   title,
   fields,
-  values,
-  onChange,
+  values = {},
   onSubmit,
   saving = false,
 }) {
+  // ─── Internal form state ───
+  const [formValues, setFormValues] = useState({});
+
+  // Sync initial values when modal opens or values change
+  useEffect(() => {
+    if (isOpen) {
+      setFormValues({ ...values });
+    }
+  }, [isOpen, values]);
+
   if (!isOpen) return null;
+
+  const handleChange = (fieldName, value) => {
+    setFormValues((prev) => ({ ...prev, [fieldName]: value }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit();
+    // Pass the final form values to the caller
+    onSubmit(formValues);
   };
 
   return (
@@ -46,10 +49,11 @@ export default function CreateEditModal({
               {field.type === 'select' ? (
                 <select
                   id={field.name}
-                  value={values[field.name] ?? ''}
-                  onChange={(e) => onChange(field.name, e.target.value)}
+                  value={formValues[field.name] ?? ''}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
                   required={field.required}
                 >
+                  <option value="" disabled>Select…</option>
                   {field.options?.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -59,8 +63,8 @@ export default function CreateEditModal({
               ) : field.type === 'textarea' ? (
                 <textarea
                   id={field.name}
-                  value={values[field.name] ?? ''}
-                  onChange={(e) => onChange(field.name, e.target.value)}
+                  value={formValues[field.name] ?? ''}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
                   required={field.required}
                   rows={3}
                 />
@@ -68,8 +72,8 @@ export default function CreateEditModal({
                 <input
                   id={field.name}
                   type={field.type || 'text'}
-                  value={values[field.name] ?? ''}
-                  onChange={(e) => onChange(field.name, e.target.value)}
+                  value={formValues[field.name] ?? ''}
+                  onChange={(e) => handleChange(field.name, e.target.value)}
                   required={field.required}
                 />
               )}
